@@ -5,11 +5,46 @@ import Label from "@/components/form/Label";
 import Button from "@/components/ui/button/Button";
 import { ChevronLeftIcon, EyeCloseIcon, EyeIcon } from "@/icons";
 import Link from "next/link";
+import router, { useRouter } from "next/navigation";
 import React, { useState } from "react";
 
 export default function SignInForm() {
+  const [formData, setFormData] = useState({ email: "", password: "" });
   const [showPassword, setShowPassword] = useState(false);
-  const [isChecked, setIsChecked] = useState(true);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [isChecked, setIsChecked] = useState(false)
+  const router = useRouter()
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = e.target;
+    setFormData((prev) => ({ ...prev, [name]: value }));
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setLoading(true);
+    setError(null);
+
+    try {
+      const res = await fetch("/api/auth/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(formData),
+      });
+
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || "Login gagal, bro");
+
+      console.log("Login berhasil!", data);
+      router.push("/"); // Redirect abis login
+    } catch (err: any) {
+      setError(err.message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
     <div className="flex flex-col flex-1 lg:w-1/2 w-full">
       <div className="w-full max-w-md sm:pt-10 mx-auto mb-5">
@@ -84,13 +119,13 @@ export default function SignInForm() {
                 </span>
               </div>
             </div>
-            <form>
+            <form onChange={handleSubmit}>
               <div className="space-y-6">
                 <div>
                   <Label>
                     Email <span className="text-error-500">*</span>{" "}
                   </Label>
-                  <Input placeholder="info@gmail.com" type="email" />
+                  <Input placeholder="info@gmail.com" defaultValue={formData.email} onChange={handleChange} type="email" />
                 </div>
                 <div>
                   <Label>
@@ -100,6 +135,8 @@ export default function SignInForm() {
                     <Input
                       type={showPassword ? "text" : "password"}
                       placeholder="Enter your password"
+                      onChange={handleChange}
+                      defaultValue={formData.password}
                     />
                     <span
                       onClick={() => setShowPassword(!showPassword)}
@@ -127,9 +164,10 @@ export default function SignInForm() {
                     Forgot password?
                   </Link>
                 </div>
+                {error && <p className="text-red-500 text-sm">{error}</p>}
                 <div>
-                  <Button className="w-full" size="sm">
-                    Sign in
+                  <Button onClick={handleSubmit} className="w-full" size="sm">
+                    {loading ? "Loading..." : "Login"}
                   </Button>
                 </div>
               </div>
