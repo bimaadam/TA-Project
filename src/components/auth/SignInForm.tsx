@@ -119,13 +119,13 @@ export default function SignInForm() {
                 </span>
               </div>
             </div>
-            <form onChange={handleSubmit}>
+            <form onSubmit={handleSubmit}>
               <div className="space-y-6">
                 <div>
                   <Label>
                     Email <span className="text-error-500">*</span>{" "}
                   </Label>
-                  <Input placeholder="info@gmail.com" defaultValue={formData.email} onChange={handleChange} type="email" />
+                  <Input name="email" placeholder="info@gmail.com" defaultValue={formData.email} onChange={handleChange} type="email" />
                 </div>
                 <div>
                   <Label>
@@ -133,6 +133,7 @@ export default function SignInForm() {
                   </Label>
                   <div className="relative">
                     <Input
+                      name="password"
                       type={showPassword ? "text" : "password"}
                       placeholder="Enter your password"
                       onChange={handleChange}
@@ -166,7 +167,7 @@ export default function SignInForm() {
                 </div>
                 {error && <p className="text-red-500 text-sm">{error}</p>}
                 <div>
-                  <Button onClick={handleSubmit} className="w-full" size="sm">
+                  <Button type="submit" onClick={handleSubmit} className="w-full" size="sm">
                     {loading ? "Loading..." : "Login"}
                   </Button>
                 </div>
