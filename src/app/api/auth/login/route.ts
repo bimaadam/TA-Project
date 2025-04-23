@@ -1,51 +1,39 @@
 import { NextResponse } from "next/server";
-import { prisma } from "@/lib/prisma"; // Pastikan path sesuai projek kamu
 import { compare } from "bcryptjs";
+import { prisma } from "@/lib/prisma";
+import Jwt from "jsonwebtoken"
+
+// SECRET KEY lu (jangan hardcode di production)
+const SECRET_KEY = process.env.JWT_SECRET || "secret";
 
 export async function POST(req: Request) {
-  try {
-    const { email, password } = await req.json();
+  const { email, password } = await req.json();
 
-    // Cek input kosong
-    if (!email || !password) {
-      return NextResponse.json(
-        { error: "Email dan password wajib diisi" },
-        { status: 400 }
-      );
-    }
+  const user = await prisma.user.findUnique({ where: { email } });
 
-    // Cari user berdasarkan email
-    const user = await prisma.user.findUnique({
-      where: { email },
-    });
-
-    if (!user) {
-      return NextResponse.json(
-        { error: "User tidak ditemukan" },
-        { status: 401 }
-      );
-    }
-
-    // Bandingkan password dengan hashed password di DB
-    const isPasswordValid = await compare(password, user.password);
-
-    if (!isPasswordValid) {
-      return NextResponse.json(
-        { error: "Password salah" },
-        { status: 401 }
-      );
-    }
-
-    // Login berhasil (bisa lanjut generate JWT atau set cookie di sini)
-    return NextResponse.json(
-      { message: "Login berhasil", user: { id: user.id, email: user.email } },
-      { status: 200 }
-    );
-  } catch (error) {
-    console.error("Login error:", error);
-    return NextResponse.json(
-      { error: "Terjadi kesalahan server" },
-      { status: 500 }
-    );
+  if (!user) {
+    return NextResponse.json({ error: "User tidak ditemukan" }, { status: 404 });
   }
+
+  const passwordMatch = await compare(password, user.password);
+
+  if (!passwordMatch) {
+    return NextResponse.json({ error: "Password salah" }, { status: 401 });
+  }
+
+  const token = Jwt.sign({ id: user.id, email: user.email }, SECRET_KEY, {
+    expiresIn: "1d",
+  });
+
+  const response = NextResponse.json({ message: "Login sukses" });
+
+  // Simpan token di cookie
+  response.cookies.set("token", token, {
+    httpOnly: true,
+    path: "/",
+    secure: process.env.NODE_ENV === "production",
+    maxAge: 60 * 60 * 24, // 1 hari
+  });
+
+  return response;
 }
