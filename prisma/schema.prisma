@@ -15,16 +15,18 @@ generator client {
 
 model User {
   id        String   @id @default(cuid())
-  fname      String?
-  lname String?
+  firstName String?
+  lastName  String?
+  name      String?   // Gabungan firstName + lastName
   email     String   @unique
-  emailVerified DateTime?
   password  String
-  role      Role     @default(ADMIN)
+  role      String   @default("user")
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
-  accounts  Account[]
-  sessions  Session[]
+
+  Account Account[]
+
+  Session Session[]
 }
 
 model Account {

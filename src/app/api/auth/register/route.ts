@@ -1,36 +1,86 @@
+// app/api/auth/register/route.ts
 import { NextResponse } from "next/server";
-import { hash } from "bcryptjs"; // Buat ngehash password
-import { prisma } from "@/lib/prisma"; // Misal lu pake Prisma
+import { hash } from "bcryptjs";
+import { prisma } from "@/lib/prisma";
 
 export async function POST(request: Request) {
   try {
     const body = await request.json();
     const { fname, lname, email, password } = body;
 
+    // Validation
     if (!email || !password || !fname || !lname) {
-      return NextResponse.json({ error: "Data kurang lengkap" }, { status: 400 });
+      return NextResponse.json(
+        { error: "Semua field harus diisi" },
+        { status: 400 }
+      );
     }
 
-    const existUser = await prisma.user.findUnique({ where: { email } });
-    if (existUser) {
-      return NextResponse.json({ error: "Email udah terdaftar" }, { status: 400 });
+    // Email format validation
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+      return NextResponse.json(
+        { error: "Format email tidak valid" },
+        { status: 400 }
+      );
     }
 
+    // Password strength validation
+    if (password.length < 8) {
+      return NextResponse.json(
+        { error: "Password minimal 8 karakter" },
+        { status: 400 }
+      );
+    }
+
+    // Check if user exists
+    const existingUser = await prisma.user.findUnique({ 
+      where: { email } 
+    });
+    
+    if (existingUser) {
+      return NextResponse.json(
+        { error: "Email sudah terdaftar" },
+        { status: 409 }
+      );
+    }
+
+    // Hash password
     const hashedPassword = await hash(password, 12);
 
-    await prisma.user.create({
+    // Create user
+    const newUser = await prisma.user.create({
       data: {
-        fname,
-        lname,
+        firstName: fname,
+        lastName: lname,
+        name: `${fname} ${lname}`, // Combine first and last name
         email,
         password: hashedPassword,
+        role: "user" // Default role
       },
+      select: {
+        id: true,
+        firstName: true,
+        lastName: true,
+        email: true,
+        role: true
+        // Exclude password from response
+      }
     });
 
-    return NextResponse.json({ message: "User berhasil register" }, { status: 201 });
+    return NextResponse.json(
+      { 
+        message: "Registrasi berhasil",
+        user: newUser 
+      },
+      { status: 201 }
+    );
 
   } catch (error) {
-    console.error(error);
-    return NextResponse.json({ error: "Gagal register" }, { status: 500 });
+    console.error("Registration error:", error);
+    return NextResponse.json(
+      { error: "Terjadi kesalahan saat registrasi" },
+      { status: 500 }
+    );
   }
 }
