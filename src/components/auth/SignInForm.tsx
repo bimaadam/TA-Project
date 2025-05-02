@@ -5,7 +5,7 @@ import Label from "@/components/form/Label";
 import Button from "@/components/ui/button/Button";
 import { ChevronLeftIcon, EyeCloseIcon, EyeIcon } from "@/icons";
 import Link from "next/link";
-import router, { useRouter } from "next/navigation";
+import { useRouter } from "next/navigation";
 import React, { useState } from "react";
 
 export default function SignInForm() {
@@ -167,7 +167,7 @@ export default function SignInForm() {
                 </div>
                 {error && <p className="text-red-500 text-sm">{error}</p>}
                 <div>
-                  <Button type="submit" onClick={handleSubmit} className="w-full" size="sm">
+                  <Button onClick={() => handleSubmit} className="w-full" size="sm">
                     {loading ? "Loading..." : "Login"}
                   </Button>
                 </div>
