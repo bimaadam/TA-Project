@@ -1,11 +1,12 @@
 import { PrismaClient } from "@prisma/client";
 
-// eslint-disable-next-line no-var
 declare global {
+  // INI emang wajib pake `var`, dan aman di TypeScript
   var prisma: PrismaClient | undefined;
 }
 
-
-export const prisma = global.prisma || new PrismaClient();
+const prisma = global.prisma || new PrismaClient();
 
 if (process.env.NODE_ENV !== "production") global.prisma = prisma;
+
+export { prisma };
