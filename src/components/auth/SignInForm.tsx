@@ -38,9 +38,14 @@ export default function SignInForm() {
 
       console.log("Login berhasil!", data);
       router.push("/"); // Redirect abis login
-    } catch (err: any) {
-      setError(err.message);
-    } finally {
+    } catch (err: unknown) {
+      if (err instanceof Error) {
+        setError(err.message);
+      } else {
+        setError('Terjadi error yang tidak diketahui');
+      }
+    }
+    finally {
       setLoading(false);
     }
   };
