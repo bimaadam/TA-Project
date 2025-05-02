@@ -34,9 +34,14 @@ export default function SignUpForm() {
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || "Something went wrong");
       console.log("Berhasil daftar!", data);
-    } catch (err: any) {
-      setError(err.message);
-    } finally {
+    } catch (err: unknown) {
+      if (err instanceof Error) {
+        setError(err.message);
+      } else {
+        setError('Terjadi error yang tidak diketahui');
+      }
+    }
+    finally {
       setLoading(false);
     }
   };
