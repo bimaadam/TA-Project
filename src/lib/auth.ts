@@ -75,7 +75,6 @@ export const authOptions: NextAuthOptions = {
   ],
   pages: {
     signIn: "/login",
-    signUp: "/register" // Halaman register baru
   },
   callbacks: {
     async jwt({ token, user }) {
