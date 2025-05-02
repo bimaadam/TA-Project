@@ -1,3 +1,15 @@
 {
-  "extends": "next/core-web-vitals"
+  "extends": [
+    "next/core-web-vitals",
+    "plugin:@typescript-eslint/recommended"
+  ],
+  "plugins": ["@typescript-eslint"],
+  "overrides": [
+    {
+      "files": ["**/lib/prisma.ts"],
+      "rules": {
+        "no-var": "off"
+      }
+    }
+  ]
 }
