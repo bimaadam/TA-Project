@@ -10,7 +10,7 @@ if (!SECRET_KEY) throw new Error("JWT_SECRET is not defined");
 export async function GET() {
   try {
     const cookieStore = cookies();
-    const token = cookieStore.get("token")?.value;
+    const token = (await cookieStore).get("token")?.value;
 
     if (!token) {
       return NextResponse.json(
