@@ -2,7 +2,7 @@ import { PrismaClient } from "@prisma/client";
 
 declare global {
   // INI emang wajib pake `var`, dan aman di TypeScript
-  var prisma: PrismaClient | undefined;
+  const prismat: PrismaClient | undefined;
 }
 
 const prisma = global.prisma || new PrismaClient();
