@@ -31,6 +31,7 @@
     "jsonwebtoken": "^9.0.2",
     "next": "15.2.3",
     "next-auth": "^4.24.11",
+    "prisma": "^6.7.0",
     "react": "^19.1.0",
     "react-apexcharts": "^1.7.0",
     "react-dnd": "^16.0.1",
