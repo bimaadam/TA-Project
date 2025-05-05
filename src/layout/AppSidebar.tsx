@@ -8,6 +8,7 @@ import {
   BoxCubeIcon,
   CalenderIcon,
   ChevronDownIcon,
+  DocsIcon,
   GridIcon,
   HorizontaLDots,
   ListIcon,
@@ -56,6 +57,11 @@ const navItems: NavItem[] = [
     name: "Project Report",
     icon: <TableIcon />,
     path: "/project-report",
+  },
+  {
+    name: "Data Invoice",
+    icon: <DocsIcon />,
+    path: "/data-invoice",
   },
   {
     name: "Pages",
