@@ -5,6 +5,7 @@ import Image from "next/image";
 import { usePathname } from "next/navigation";
 import { useSidebar } from "../context/SidebarContext";
 import {
+  BoltIcon,
   BoxCubeIcon,
   ChevronDownIcon,
   GridIcon,
@@ -59,6 +60,11 @@ const navItems: NavItem[] = [
     name: "Project Report",
     icon: <TableIcon />,
     path: "/project-report",
+  },
+  {
+    name: "Master Data Client",
+    icon: <BoltIcon />,
+    path: "master-data-klien"
   },
   {
     name: "Pages",
