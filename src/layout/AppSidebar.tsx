@@ -10,6 +10,7 @@ import {
   DocsIcon,
   GridIcon,
   HorizontaLDots,
+  ListIcon,
   PageIcon,
   PieChartIcon,
   PlugInIcon,
@@ -51,14 +52,14 @@ const navItems: NavItem[] = [
   //   subItems: [{ name: "Basic Tables", path: "/basic-tables", pro: false }],
   // },
   {
+    name: "Sales & Payment",
+    icon: <ListIcon />,
+    subItems: [{ name: "Data Invoice", path: "/data-invoice" }],
+  },
+  {
     name: "Project Report",
     icon: <TableIcon />,
     path: "/project-report",
-  },
-  {
-    name: "Data Invoice",
-    icon: <DocsIcon />,
-    path: "/data-invoice",
   },
   {
     name: "Pages",
