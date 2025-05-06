@@ -76,7 +76,7 @@ const navItems: NavItem[] = [
   {
     name: "Management Account/User/Client",
     icon: <UserIcon />,
-    path: "/management-account"
+    path: "/manage-account"
   },
   {
     name: "Pages",
