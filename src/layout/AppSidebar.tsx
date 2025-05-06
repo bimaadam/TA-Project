@@ -12,6 +12,7 @@ import {
   HorizontaLDots,
   ListIcon,
   PageIcon,
+  PencilIcon,
   PieChartIcon,
   PlugInIcon,
   TableIcon,
@@ -65,6 +66,11 @@ const navItems: NavItem[] = [
     name: "Master Data Client",
     icon: <BoltIcon />,
     path: "/master-data-klien"
+  },
+  {
+    name: "Financial Reports",
+    icon: <PencilIcon />,
+    path: "/finance-report"
   },
   {
     name: "Pages",
