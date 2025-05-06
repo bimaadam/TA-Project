@@ -7,7 +7,6 @@ import { useSidebar } from "../context/SidebarContext";
 import {
   BoxCubeIcon,
   ChevronDownIcon,
-  DocsIcon,
   GridIcon,
   HorizontaLDots,
   ListIcon,
