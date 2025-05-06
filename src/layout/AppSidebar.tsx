@@ -13,7 +13,6 @@ import {
   HorizontaLDots,
   ListIcon,
   PageIcon,
-  PencilIcon,
   PieChartIcon,
   PlugInIcon,
   TableIcon,
