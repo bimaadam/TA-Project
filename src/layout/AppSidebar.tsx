@@ -64,7 +64,7 @@ const navItems: NavItem[] = [
   {
     name: "Master Data Client",
     icon: <BoltIcon />,
-    path: "master-data-klien"
+    path: "/master-data-klien"
   },
   {
     name: "Pages",
