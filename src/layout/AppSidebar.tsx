@@ -8,6 +8,7 @@ import {
   BoltIcon,
   BoxCubeIcon,
   ChevronDownIcon,
+  DollarLineIcon,
   GridIcon,
   HorizontaLDots,
   ListIcon,
@@ -54,27 +55,50 @@ const navItems: NavItem[] = [
   //   subItems: [{ name: "Basic Tables", path: "/basic-tables", pro: false }],
   // },
   {
+    name: "Project Management",
+    icon: <TableIcon />,
+    subItems: [
+      { name: "Data Proyek", path: "/projects" },
+      { name: "Input Proyek Baru", path: "/projects/new" },
+      { name: "Progress Proyek", path: "/projects/progress" },
+    ],
+  },
+  {
+    name: "Finance & Transactions",
+    icon: <DollarLineIcon />,
+    subItems: [
+      { name: "Transaksi Masuk", path: "/finance/income" },
+      { name: "Transaksi Keluar", path: "/finance/expense" },
+      { name: "Jurnal Umum", path: "/finance/journal" },
+    ],
+  },
+  {
     name: "Sales & Payment",
     icon: <ListIcon />,
-    subItems: [{ name: "Data Invoice", path: "/data-invoice" }],
+    subItems: [
+      { name: "Data Invoice", path: "/data-invoice" },
+      { name: "Status Pembayaran", path: "/payment-status" }
+    ],
   },
   {
-    name: "Project Report",
-    icon: <TableIcon />,
-    path: "/project-report",
+    name: "Reports",
+    icon: <PieChartIcon />,
+    subItems: [
+      { name: "Laporan Proyek", path: "/project-report" },
+      { name: "Laporan Keuangan", path: "/finance-report" },
+      { name: "Laba Rugi Proyek", path: "/project-profit-loss" },
+    ],
   },
   {
-    name: "Master Data Client",
+    name: "Master Data",
     icon: <BoltIcon />,
-    path: "/master-data-klien"
+    subItems: [
+      { name: "Data Klien", path: "/master-data-klien" },
+      { name: "Data Karyawan", path: "/master-data-karyawan" },
+    ],
   },
   {
-    name: "Financial Reports",
-    icon: <PencilIcon />,
-    path: "/finance-report"
-  },
-  {
-    name: "Management Account/User/Client",
+    name: "User Management",
     icon: <UserIcon />,
     path: "/manage-account"
   },
