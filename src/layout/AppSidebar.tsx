@@ -16,6 +16,7 @@ import {
   PieChartIcon,
   PlugInIcon,
   TableIcon,
+  UserIcon,
 } from "../icons/index";
 
 type NavItem = {
@@ -71,6 +72,11 @@ const navItems: NavItem[] = [
     name: "Financial Reports",
     icon: <PencilIcon />,
     path: "/finance-report"
+  },
+  {
+    name: "Management Account/User/Client",
+    icon: <UserIcon />,
+    path: "/management-account"
   },
   {
     name: "Pages",
