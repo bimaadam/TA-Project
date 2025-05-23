@@ -13,14 +13,17 @@ export default function UserDropdown() {
 
   async function fetchUserData() {
     try {
-      const response = await fetch('/api/auth/me');
+      const response = await fetch('http://localhost:3000/auth/profile', {
+        method: "GET",
+        credentials: 'include',
+      });
 
       if (!response.ok) {
         throw new Error('Failed to fetch user data');
       }
 
       const userData = await response.json();
-      setUser(userData);
+      setUser(userData.user); // ⬅️ jangan lupa ambil `user` dari `res.user`
     } catch (err) {
       console.error('Error fetching user:', err);
     } finally {
@@ -28,14 +31,16 @@ export default function UserDropdown() {
     }
   }
 
+
   useEffect(() => {
     fetchUserData();
   }, []);
 
   const handleLogout = async () => {
     try {
-      const res = await fetch("/api/auth/logout", {
+      const res = await fetch("http://localhost:3000/auth/logout", {
         method: "POST",
+        credentials: "include", // ini cukup kalo backend pakai cookie
       });
 
       if (res.ok) {
@@ -45,7 +50,7 @@ export default function UserDropdown() {
     } catch (err) {
       console.error("Logout failed:", err);
     }
-  };
+  }
 
   function toggleDropdown(e: React.MouseEvent<HTMLButtonElement>) {
     e.stopPropagation();

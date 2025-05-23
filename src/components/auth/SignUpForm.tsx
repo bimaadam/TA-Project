@@ -12,11 +12,12 @@ export default function SignUpForm() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [formdata, setFormdata] = useState({
-    fname: "",
-    lname: "",
+    firstName: "",
+    lastName: "",
+    name: "",
     email: "",
     password: "",
-    isChecked: false,
+    isVerified: false,
   });
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -25,7 +26,7 @@ export default function SignUpForm() {
     setError(null);
 
     try {
-      const res = await fetch("/api/auth/register", {
+      const res = await fetch("http://localhost:3000/auth/register", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(formdata),
@@ -149,8 +150,8 @@ export default function SignUpForm() {
                   </Label>
                   <Input
                     type="text"
-                    defaultValue={formdata.fname}
-                    name="fname"
+                    defaultValue={formdata.firstName}
+                    name="firstName"
                     onChange={handleChange}
                     placeholder="Enter your first name"
                   />
@@ -163,8 +164,8 @@ export default function SignUpForm() {
                   </Label>
                   <Input
                     type="text"
-                    name="lname"
-                    defaultValue={formdata.lname}
+                    name="lastName"
+                    defaultValue={formdata.lastName}
                     onChange={handleChange}
                     placeholder="Enter your last name"
                   />

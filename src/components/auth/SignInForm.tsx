@@ -27,13 +27,15 @@ export default function SignInForm() {
     setError(null);
 
     try {
-      const res = await fetch("/api/auth/login", {
+      const res = await fetch("http://localhost:3000/auth/login", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
+        credentials: "include", // INI UDAH BENER
         body: JSON.stringify(formData),
       });
 
       const data = await res.json();
+
       if (!res.ok) throw new Error(data.error || "Login gagal, bro");
 
       console.log("Login berhasil!", data);
@@ -42,13 +44,12 @@ export default function SignInForm() {
       if (err instanceof Error) {
         setError(err.message);
       } else {
-        setError('Terjadi error yang tidak diketahui');
+        setError("Terjadi error yang tidak diketahui");
       }
-    }
-    finally {
+    } finally {
       setLoading(false);
     }
-  };
+  }
 
   return (
     <div className="flex flex-col flex-1 lg:w-1/2 w-full">
