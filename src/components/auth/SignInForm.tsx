@@ -25,9 +25,10 @@ export default function SignInForm() {
     e.preventDefault();
     setLoading(true);
     setError(null);
+    const baseURL = process.env.BASE_URL
 
     try {
-      const res = await fetch("http://localhost:3000/auth/login", {
+      const res = await fetch(`${baseURL}/auth/login`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         credentials: "include", // INI UDAH BENER

@@ -10,10 +10,11 @@ export default function UserDropdown() {
   const [user, setUser] = useState<{ name?: string, email?: string } | null>(null);
   const [loading, setLoading] = useState(true);
   const router = useRouter();
+  const baseURL = process.env.BASE_URL
 
   async function fetchUserData() {
     try {
-      const response = await fetch('http://localhost:3000/auth/profile', {
+      const response = await fetch(`${baseURL}/auth/profile`, {
         method: "GET",
         credentials: 'include',
       });

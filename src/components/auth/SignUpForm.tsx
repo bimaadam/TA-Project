@@ -25,8 +25,9 @@ export default function SignUpForm() {
     setLoading(true);
     setError(null);
 
+    const baseURL = process.env.BASE_URL
     try {
-      const res = await fetch("http://localhost:3000/auth/register", {
+      const res = await fetch(`${baseURL}/auth/register`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(formdata),
