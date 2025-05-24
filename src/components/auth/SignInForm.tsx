@@ -36,6 +36,7 @@ export default function SignInForm() {
       });
 
       const data = await res.json();
+      localStorage.getItem("token")
 
       if (!res.ok) throw new Error(data.error || "Login gagal, bro");
 

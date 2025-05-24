@@ -1,5 +1,13 @@
+import router from 'next/router';
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
+import { useEffect } from 'react';
+
+useEffect(() => {
+  const token = localStorage.getItem("token");
+  if (!token) router.push("/signin");
+}, []);
+
 
 export function middleware(req: NextRequest) {
   const token = req.cookies.get('session_token');
