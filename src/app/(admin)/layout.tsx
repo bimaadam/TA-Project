@@ -12,7 +12,6 @@ export default function AdminLayout({
 }: {
   children: React.ReactNode;
 }) {
-  const router = useRouter();
 
   // useEffect(() => {
   //   const token = localStorage.getItem('accessToken');
