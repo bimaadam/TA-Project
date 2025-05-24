@@ -1,29 +1,14 @@
-import router from 'next/router';
+// middleware.ts
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
-import { useEffect } from 'react';
-
-useEffect(() => {
-  const token = localStorage.getItem("token");
-  if (!token) router.push("/signin");
-}, []);
-
 
 export function middleware(req: NextRequest) {
-  const token = req.cookies.get('session_token');
+  // Middleware di server GAK BISA akses localStorage, jadi lewatin aja
+  // Biarkan frontend handle via useEffect()
 
-  const protectedPaths = ['/', '/dashboard'];
-  const isProtected = protectedPaths.some((path) =>
-    req.nextUrl.pathname.startsWith(path)
-  );
-
-  if (!token && isProtected) {
-    return NextResponse.redirect(new URL('/signin', req.url));
-  }
-
-  return NextResponse.next();
+  return NextResponse.next(); // allow semua route, karena proteksi di frontend
 }
 
 export const config = {
-  matcher: ['/', '/dashboard/:path*'],
+  matcher: ['/'], // cuma root yang di-match
 };
