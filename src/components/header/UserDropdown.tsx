@@ -4,6 +4,8 @@ import React, { useEffect, useState } from "react";
 import { Dropdown } from "../ui/dropdown/Dropdown";
 import { DropdownItem } from "../ui/dropdown/DropdownItem";
 import { useRouter } from "next/navigation";
+import Cookies from 'js-cookie';
+
 
 export default function UserDropdown() {
   const [isOpen, setIsOpen] = useState(false);
@@ -85,6 +87,7 @@ export default function UserDropdown() {
   const handleLogout = () => {
     // langsung hapus token dari localStorage
     localStorage.removeItem('accessToken');
+    Cookies.remove('accessToken');
 
     // reset user state
     setUser(null);
