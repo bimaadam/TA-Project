@@ -2,7 +2,7 @@ import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
 
 export function middleware(req: NextRequest) {
-  const token = req.cookies.get('session_token');
+  const token = localStorage
 
   const protectedPaths = ['/', '/dashboard'];
   const isProtected = protectedPaths.some((path) =>
