@@ -16,7 +16,6 @@ export default function UserDropdown() {
     try {
       const response = await fetch(`${baseURL}/auth/profile`, {
         method: "GET",
-        credentials: 'include',
       });
 
       if (!response.ok) {
@@ -39,9 +38,8 @@ export default function UserDropdown() {
 
   const handleLogout = async () => {
     try {
-      const res = await fetch("http://localhost:3000/auth/logout", {
+      const res = await fetch(`${baseURL}/auth/logout`, {
         method: "POST",
-        credentials: "include", // ini cukup kalo backend pakai cookie
       });
 
       if (res.ok) {
