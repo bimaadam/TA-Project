@@ -1,13 +1,21 @@
-// middleware.ts
 import { NextResponse } from 'next/server';
+import type { NextRequest } from 'next/server';
 
-export function middleware() {
-  // Middleware di server GAK BISA akses localStorage, jadi lewatin aja
-  // Biarkan frontend handle via useEffect()
+export function middleware(req: NextRequest) {
+  const token = req.cookies.get('session_token');
 
-  return NextResponse.next(); // allow semua route, karena proteksi di frontend
+  const protectedPaths = ['/',];
+  const isProtected = protectedPaths.some((path) =>
+    req.nextUrl.pathname.startsWith(path)
+  );
+
+  if (!token && isProtected) {
+    return NextResponse.redirect(new URL('/signin', req.url));
+  }
+
+  return NextResponse.next();
 }
 
 export const config = {
-  matcher: ['/'], // cuma root yang di-match
+  matcher: ['/', ':path*'],
 };
