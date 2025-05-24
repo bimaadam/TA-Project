@@ -4,7 +4,6 @@ import React, { useEffect, useState } from "react";
 import { Dropdown } from "../ui/dropdown/Dropdown";
 import { DropdownItem } from "../ui/dropdown/DropdownItem";
 import { useRouter } from "next/navigation";
-import { cookies } from "next/headers";
 
 export default function UserDropdown() {
   const [isOpen, setIsOpen] = useState(false);
