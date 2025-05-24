@@ -46,7 +46,9 @@ export default function SignInForm() {
 
       Cookies.set('accessToken', accessToken, { path: '/' });
 
-      router.push('/');
+      setTimeout(() => {
+        router.push('/');
+      }, 300);
       console.log("Login berhasil!", data);
 
     } catch (err: unknown) {
