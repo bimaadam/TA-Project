@@ -3,32 +3,24 @@ import type { NextRequest } from 'next/server';
 
 export function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
-  const accessToken = request.cookies.get('accessToken')?.value || '';
+  const token = request.cookies.get('accessToken')?.value;
 
-  // Routes that require authentication
-  const protectedRoutes = ['/', '/profile'];
-  // Routes that should not be accessed when logged in
-  const authRoutes = ['/signin', '/signup'];
-
-  // Check if current route is protected
-  const isProtectedRoute = protectedRoutes.some(route => 
-    pathname.startsWith(route)
+  const isProtectedRoute = ['/', '/profile', '/dashboard'].some(route =>
+    pathname === route || pathname.startsWith(`${route}/`)
   );
 
-  // Check if current route is auth route
-  const isAuthRoute = authRoutes.includes(pathname);
+  const isAuthRoute = ['/signin', '/signup'].includes(pathname);
 
-  // If user is logged in and tries to access auth route, redirect to dashboard
-  if (isAuthRoute && accessToken) {
+  // Kalo lagi login terus coba ke /signin /signup, tendang balik ke /
+  if (isAuthRoute && token) {
     return NextResponse.redirect(new URL('/', request.url));
   }
 
-  // If user is not logged in and tries to access protected route, redirect to signin
-  if (isProtectedRoute && !accessToken) {
+  // Kalo belum login dan akses route yang butuh login, tendang ke /signin
+  if (isProtectedRoute && !token) {
     return NextResponse.redirect(new URL('/signin', request.url));
   }
 
-  // Allow the request to continue
   return NextResponse.next();
 }
 
