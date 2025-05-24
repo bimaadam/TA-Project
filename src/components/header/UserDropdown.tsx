@@ -9,35 +9,70 @@ export default function UserDropdown() {
   const [isOpen, setIsOpen] = useState(false);
   const [user, setUser] = useState<{ name: string, email: string } | null>(null);
   const [loading, setLoading] = useState(true);
+  const [, setError] = useState<string | null>(null);
   const router = useRouter();
   const baseURL = process.env.NEXT_PUBLIC_API_URL
 
   async function fetchUserData() {
     try {
+      // Check if we're on client side
+      if (typeof window === "undefined") return;
+
       const token = localStorage.getItem('accessToken');
+
+      if (!token) {
+        throw new Error('No access token found in localStorage');
+      }
+
+      // Verify token format
+      if (!token.startsWith('eyJhbGciOiJ')) {
+        throw new Error('Invalid token format');
+      }
+
       const response = await fetch(`${baseURL}/auth/profile`, {
         method: "GET",
         headers: {
-          "Authorization": token ? `Bearer ${token}` : "",
-          "Content-Type": "application/json"
+          "Authorization": `Bearer ${token}`,
+          "Content-Type": "application/json",
+          "Accept": "application/json"
         },
-        credentials: 'include' // if using cookies
+        credentials: 'include',
+        mode: 'cors'
       });
 
-      if (!response.ok) {
-        throw new Error('Failed to fetch user data');
+      // Handle 401 specifically
+      if (response.status === 401) {
+        localStorage.removeItem('accessToken');
+        router.push('/signin');
+        throw new Error('Session expired. Please login again.');
       }
 
-      const userData = await response.json();
-      console.log('API URL:', `${baseURL}/auth/profile`);
-      console.log('Response:', userData);
-      // Ensure userData has name and email, fallback to empty string if missing
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(
+          errorData.message || `HTTP error! status: ${response.status}`
+        );
+      }
+
+      const data = await response.json();
+
+      if (!data.user) {
+        throw new Error('User data not found in response');
+      }
+
       setUser({
-        name: userData.user?.name || userData.user?.email || "User",
-        email: userData.user?.email || "No email"
+        name: data.user.name || 'User',
+        email: data.user.email || 'No email'
       });
+
     } catch (err) {
       console.error('Error fetching user:', err);
+      setError(err instanceof Error ? err.message : 'Failed to fetch user data');
+
+      // If unauthorized, redirect to login
+      if (err instanceof Error && err.message.includes('401')) {
+        router.push('/signin');
+      }
     } finally {
       setLoading(false);
     }
