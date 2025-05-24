@@ -7,47 +7,57 @@ import { useRouter } from "next/navigation";
 
 export default function UserDropdown() {
   const [isOpen, setIsOpen] = useState(false);
-  const [user, setUser] = useState<{ name?: string, email?: string } | null>(null);
+  const [user, setUser] = useState<{ name: string, email: string } | null>(null);
   const [loading, setLoading] = useState(true);
   const router = useRouter();
   const baseURL = process.env.NEXT_PUBLIC_API_URL
 
-  async function fetchUserData() {
-    try {
-      const response = await fetch(`${baseURL}/auth/profile`, {
-        method: "GET",
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem('accessToken')}`
-        }
-      });
-
-      if (!response.ok) {
-        throw new Error('Failed to fetch user data');
-      }
-
-      const userData = await response.json();
-      setUser(userData.user);
-    } catch (err) {
-      console.error('Error fetching user:', err);
-    } finally {
-      setLoading(false);
-    }
-  }
-
   useEffect(() => {
+    const token = localStorage.getItem('accessToken');
+    console.log('Token ditemukan:', token);
+
+    if (!token) {
+      console.warn('Token gak ada');
+      setLoading(false);
+      return;
+    }
+
+    const fetchUserData = async () => {
+      try {
+        const response = await fetch(`${baseURL}/auth/profile`, {
+          method: "GET",
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+
+        if (!response.ok) {
+          throw new Error('Failed to fetch user data');
+        }
+
+        const userData = await response.json();
+        setUser(userData.user);
+      } catch (err) {
+        console.error('Error fetching user:', err);
+      } finally {
+        setLoading(false);
+      }
+    };
+
     fetchUserData();
   }, []);
 
   const handleLogout = () => {
-    // langsung hapus token dari localStorage
+    // Langsung hapus accessToken
     localStorage.removeItem('accessToken');
 
-    // reset user state
+    // Reset state user
     setUser(null);
 
-    // redirect ke signin
+    // Redirect ke halaman signin
     router.push('/signin');
   };
+
 
 
   function toggleDropdown(e: React.MouseEvent<HTMLButtonElement>) {
