@@ -10,7 +10,7 @@ export default function UserDropdown() {
   const [user, setUser] = useState<{ name?: string, email?: string } | null>(null);
   const [loading, setLoading] = useState(true);
   const router = useRouter();
-  const baseURL = process.env.BASE_URL
+  const baseURL = process.env.NEXT_PUBLIC_API_URL
 
   async function fetchUserData() {
     try {

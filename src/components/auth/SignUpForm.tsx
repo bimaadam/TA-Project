@@ -25,7 +25,7 @@ export default function SignUpForm() {
     setLoading(true);
     setError(null);
 
-    const baseURL = process.env.BASE_URL
+    const baseURL = process.env.NEXT_PUBLIC_API_URL
     try {
       const res = await fetch(`${baseURL}/auth/register`, {
         method: "POST",
