@@ -5,9 +5,10 @@ import Label from "@/components/form/Label";
 import Button from "@/components/ui/button/Button";
 import { ChevronLeftIcon, EyeCloseIcon, EyeIcon } from "@/icons";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+
 import Cookies from 'js-cookie';
 import React, { useState } from "react";
+import { useRouter } from "next/router";
 
 export default function SignInForm() {
   const [formData, setFormData] = useState({ email: "", password: "" });
