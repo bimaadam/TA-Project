@@ -29,7 +29,11 @@ export default function UserDropdown() {
       }
 
       const userData = await response.json();
-      setUser(userData.user);
+      // Ensure userData has name and email, fallback to empty string if missing
+      setUser({
+        name: userData.user?.name || userData.user?.email || "User",
+        email: userData.user?.email || "No email"
+      });
     } catch (err) {
       console.error('Error fetching user:', err);
     } finally {
