@@ -4,6 +4,7 @@ import React, { useEffect, useState } from "react";
 import { Dropdown } from "../ui/dropdown/Dropdown";
 import { DropdownItem } from "../ui/dropdown/DropdownItem";
 import { useRouter } from "next/navigation";
+import { cookies } from "next/headers";
 
 export default function UserDropdown() {
   const [isOpen, setIsOpen] = useState(false);
@@ -14,7 +15,15 @@ export default function UserDropdown() {
 
   async function fetchUserData() {
     try {
-      const token = localStorage.getItem('accessToken');
+      // Helper to get cookie value by name
+      function getCookie(name: string) {
+        const value = `; ${document.cookie}`;
+        const parts = value.split(`; ${name}=`);
+        if (parts.length === 2) return parts.pop()?.split(';').shift();
+        return null;
+      }
+
+      const token = getCookie('accessToken');
       const response = await fetch(`${baseURL}/auth/profile`, {
         method: "GET",
         headers: {
