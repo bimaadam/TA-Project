@@ -14,15 +14,7 @@ export default function UserDropdown() {
 
   async function fetchUserData() {
     try {
-      // Helper to get cookie value by name
-      function getCookie(name: string) {
-        const value = `; ${document.cookie}`;
-        const parts = value.split(`; ${name}=`);
-        if (parts.length === 2) return parts.pop()?.split(';').shift();
-        return null;
-      }
-
-      const token = getCookie('accessToken');
+      const token = localStorage.getItem('accessToken');
       const response = await fetch(`${baseURL}/auth/profile`, {
         method: "GET",
         headers: {
@@ -37,6 +29,8 @@ export default function UserDropdown() {
       }
 
       const userData = await response.json();
+      console.log('API URL:', `${baseURL}/auth/profile`);
+      console.log('Response:', userData);
       // Ensure userData has name and email, fallback to empty string if missing
       setUser({
         name: userData.user?.name || userData.user?.email || "User",
