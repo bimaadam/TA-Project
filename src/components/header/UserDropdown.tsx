@@ -25,7 +25,6 @@ export default function UserDropdown() {
           localStorage.removeItem("accessToken");
           localStorage.removeItem("sessionToken");
           // optional: redirect ke login
-          window.location.href = "/signin";
         }
         throw new Error("Gagal ambil data user");
       }
