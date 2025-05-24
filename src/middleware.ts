@@ -4,7 +4,7 @@ import type { NextRequest } from 'next/server';
 export function middleware(req: NextRequest) {
   const token = req.cookies.get('session_token');
 
-  const protectedPaths = ['/',];
+  const protectedPaths = ['/', '/dashboard'];
   const isProtected = protectedPaths.some((path) =>
     req.nextUrl.pathname.startsWith(path)
   );
@@ -17,5 +17,5 @@ export function middleware(req: NextRequest) {
 }
 
 export const config = {
-  matcher: ['/:path*'],
+  matcher: ['/', '/dashboard/:path*'],
 };
