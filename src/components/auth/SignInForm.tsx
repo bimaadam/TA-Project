@@ -41,9 +41,8 @@ export default function SignInForm() {
 
 
       if (!res.ok) throw new Error(data.error || "Login gagal, bro");
-
-      console.log("Login berhasil!", data);
       router.push('/');
+      console.log("Login berhasil!", data);
     } catch (err: unknown) {
       if (err instanceof Error) {
         setError(err.message);
