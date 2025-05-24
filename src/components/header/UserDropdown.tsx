@@ -38,21 +38,17 @@ export default function UserDropdown() {
     fetchUserData();
   }, []);
 
-  const handleLogout = async () => {
-    try {
-      const res = await fetch(`${baseURL}/auth/logout`, {
-        method: "POST",
-      });
+  const handleLogout = () => {
+    // langsung hapus token dari localStorage
+    localStorage.removeItem('accessToken');
 
-      if (res.ok) {
-        setUser(null);
-        localStorage.removeItem('accessToken');
-        router.push('/signin');
-      }
-    } catch (err) {
-      console.error("Logout failed:", err);
-    }
-  }
+    // reset user state
+    setUser(null);
+
+    // redirect ke signin
+    router.push('/signin');
+  };
+
 
   function toggleDropdown(e: React.MouseEvent<HTMLButtonElement>) {
     e.stopPropagation();
