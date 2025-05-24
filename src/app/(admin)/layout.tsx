@@ -5,7 +5,7 @@ import AppHeader from "@/layout/AppHeader";
 import AppSidebar from "@/layout/AppSidebar";
 import Backdrop from "@/layout/Backdrop";
 import { useRouter } from "next/navigation";
-import React, { useEffect } from "react";
+import React, { } from "react";
 
 export default function AdminLayout({
   children,
@@ -14,15 +14,15 @@ export default function AdminLayout({
 }) {
   const router = useRouter();
 
-  useEffect(() => {
-    const token = localStorage.getItem('accessToken');
-    const protectedPaths = ['/dashboard', '/profile'];
-    const currentPath = window.location.pathname;
+  // useEffect(() => {
+  //   const token = localStorage.getItem('accessToken');
+  //   const protectedPaths = ['/dashboard', '/profile'];
+  //   const currentPath = window.location.pathname;
 
-    if (protectedPaths.some(path => currentPath.startsWith(path)) && !token) {
-      router.push('/signin');
-    }
-  }, []);
+  //   if (protectedPaths.some(path => currentPath.startsWith(path)) && !token) {
+  //     router.push('/signin');
+  //   }
+  // }, []);
 
   const { isExpanded, isHovered, isMobileOpen } = useSidebar();
   const mainContentMargin = isMobileOpen
