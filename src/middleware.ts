@@ -1,8 +1,7 @@
 // middleware.ts
 import { NextResponse } from 'next/server';
-import { NextRequest } from 'next/server';
 
-export function middleware (_: NextRequest) {
+export function middleware() {
   // Middleware di server GAK BISA akses localStorage, jadi lewatin aja
   // Biarkan frontend handle via useEffect()
 
