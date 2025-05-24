@@ -15,9 +15,14 @@ export default function AdminLayout({
   const router = useRouter();
 
   useEffect(() => {
-    const token = localStorage.getItem('sessionToken');
-    if (!token) router.push('/signin');
-  }, [router]);
+    const token = localStorage.getItem('accessToken');
+    const protectedPaths = ['/dashboard', '/profile'];
+    const currentPath = window.location.pathname;
+
+    if (protectedPaths.some(path => currentPath.startsWith(path)) && !token) {
+      router.push('/signin');
+    }
+  }, []);
 
   const { isExpanded, isHovered, isMobileOpen } = useSidebar();
   const mainContentMargin = isMobileOpen
