@@ -3,8 +3,8 @@ import type { NextRequest } from 'next/server';
 
 export function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
-  const token = request.cookies.get('accessToken')?.value;
-
+  // Get accessToken from header instead of cookie
+  const token = request.headers.get('accessToken');
   const isProtectedRoute = ['/', '/profile', '/dashboard'].some(route =>
     pathname === route || pathname.startsWith(`${route}/`)
   );
