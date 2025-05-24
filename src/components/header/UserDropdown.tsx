@@ -16,23 +16,16 @@ export default function UserDropdown() {
     try {
       const response = await fetch(`${baseURL}/auth/profile`, {
         method: "GET",
-        credentials: "include", // penting kalo backend lo pake cookie
       });
 
       if (!response.ok) {
-        if (response.status === 401 || response.status === 403) {
-          // 🔥 token/session gak valid — bersihin localStorage
-          localStorage.removeItem("accessToken");
-          localStorage.removeItem("sessionToken");
-          // optional: redirect ke login
-        }
-        throw new Error("Gagal ambil data user");
+        throw new Error('Failed to fetch user data');
       }
 
       const userData = await response.json();
-      setUser(userData.user);
+      setUser(userData.user); // ⬅️ jangan lupa ambil `user` dari `res.user`
     } catch (err) {
-      console.error("Error fetching user:", err);
+      console.error('Error fetching user:', err);
     } finally {
       setLoading(false);
     }
