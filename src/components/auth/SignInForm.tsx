@@ -6,6 +6,7 @@ import Button from "@/components/ui/button/Button";
 import { ChevronLeftIcon, EyeCloseIcon, EyeIcon } from "@/icons";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import Cookies from 'js-cookie';
 import React, { useState } from "react";
 
 export default function SignInForm() {
@@ -41,6 +42,9 @@ export default function SignInForm() {
       const { accessToken, sessionToken } = data.data;
       localStorage.setItem('accessToken', accessToken);
       localStorage.setItem('sessionToken', sessionToken);
+
+
+      Cookies.set('accessToken', accessToken, { path: '/' });
 
       router.push('/');
       console.log("Login berhasil!", data);
