@@ -183,6 +183,7 @@ export default function SignInForm() {
                 {error && <p className="text-red-500 text-sm">{error}</p>}
                 <div>
                   <Button
+                    onClick={() => (handleSubmit)}
                     className="w-full"
                     size="sm"
                     type="submit"
