@@ -31,12 +31,14 @@ export default function SignInForm() {
       const res = await fetch(`${baseURL}/auth/login`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        credentials: "include", // INI UDAH BENER
         body: JSON.stringify(formData),
       });
 
       const data = await res.json();
-      localStorage.getItem("token")
+      const { accessToken, sessionToken } = data.data;
+      localStorage.setItem('accessToken', accessToken);
+      localStorage.setItem('sessionToken', sessionToken);
+
 
       if (!res.ok) throw new Error(data.error || "Login gagal, bro");
 
