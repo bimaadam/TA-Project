@@ -46,7 +46,8 @@ export default function UserDropdown() {
 
       if (res.ok) {
         setUser(null);
-        router.push("/signin");
+        localStorage.removeItem('accessToken');
+        router.push('/signin');
       }
     } catch (err) {
       console.error("Logout failed:", err);
