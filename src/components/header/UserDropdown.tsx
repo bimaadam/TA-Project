@@ -16,6 +16,9 @@ export default function UserDropdown() {
     try {
       const response = await fetch(`${baseURL}/auth/profile`, {
         method: "GET",
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem('accessToken')}`
+        }
       });
 
       if (!response.ok) {
@@ -23,14 +26,13 @@ export default function UserDropdown() {
       }
 
       const userData = await response.json();
-      setUser(userData.user); // ⬅️ jangan lupa ambil `user` dari `res.user`
+      setUser(userData.user);
     } catch (err) {
       console.error('Error fetching user:', err);
     } finally {
       setLoading(false);
     }
   }
-
 
   useEffect(() => {
     fetchUserData();
