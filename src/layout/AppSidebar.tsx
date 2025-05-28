@@ -6,6 +6,7 @@ import { usePathname } from "next/navigation";
 import { useSidebar } from "../context/SidebarContext";
 import {
   BoltIcon,
+  ChatIcon,
   ChevronDownIcon,
   DollarLineIcon,
   GridIcon,
@@ -91,6 +92,13 @@ const navItems: NavItem[] = [
     subItems: [
       { name: "Data Klien", path: "/master-data-klien" },
       { name: "Data Karyawan", path: "/master-data-karyawan" },
+    ],
+  },
+  {
+    name: "Chat Klien",
+    icon: <ChatIcon />,
+    subItems: [
+      { name: "Chat Klient", path: "/chat" },
     ],
   },
   // {

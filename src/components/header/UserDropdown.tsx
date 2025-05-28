@@ -31,7 +31,7 @@ export default function UserDropdown() {
         throw new Error('Invalid token format');
       }
 
-      const response = await fetch(`${baseURL}/auth/profile`, {
+      const response = await fetch(`${baseURL}auth/profile`, {
         method: "GET",
         headers: {
           "Authorization": `Bearer ${token}`,
