@@ -1,3 +1,7 @@
-export default function () {
-    return
+import Journals from "@/components/journal";
+
+export default function JournalPage() {
+    return (
+        <Journals />
+    )
 }
