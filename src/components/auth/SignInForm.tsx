@@ -78,7 +78,7 @@ export default function SignInForm() {
               Sign In
             </h1>
             <p className="text-sm text-gray-500 dark:text-gray-400">
-              Enter your email and password to sign in!
+              Enter your email and password to sign in
             </p>
           </div>
           <div>
