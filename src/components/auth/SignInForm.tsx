@@ -30,7 +30,7 @@ export default function SignInForm() {
     const baseURL = process.env.NEXT_PUBLIC_API_URL
 
     try {
-      const res = await fetch(`${baseURL}auth/login`, {
+      const res = await fetch(`${baseURL}/auth/login`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(formData),
