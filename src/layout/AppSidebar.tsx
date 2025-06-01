@@ -67,6 +67,7 @@ const navItems: NavItem[] = [
       { name: "Transaksi Masuk", path: "/finance/income" },
       { name: "Transaksi Keluar", path: "/finance/expense" },
       { name: "Jurnal Umum", path: "/finance/journal" },
+      { name: "Tambah Order", path: "/finance/order" }
     ],
   },
   {
