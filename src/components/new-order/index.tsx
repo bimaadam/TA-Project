@@ -1,5 +1,5 @@
 
-import DefaultInputs from "./Input-Order";
+import InputOder from "./Input-Order";
 
 
 const NewOrder = () => {
@@ -7,7 +7,7 @@ const NewOrder = () => {
         <div className="h-full">
             <div className="flex-1 w-full ">
                 <div className="text-white bg-auto">
-                    <DefaultInputs />
+                    <InputOder />
                 </div>
             </div>
         </div>

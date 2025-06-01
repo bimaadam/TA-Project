@@ -8,7 +8,7 @@ import Input from '../form/input/InputField';
 import Label from '../form/Label';
 import Select from '../form/Select';
 
-export default function DefaultInputs() {
+export default function InputOrder() {
   const [showPassword, setShowPassword] = useState(false);
   const options = [
     { value: "marketing", label: "Marketing" },
