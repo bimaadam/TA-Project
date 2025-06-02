@@ -44,7 +44,7 @@ export default function SignInForm() {
       localStorage.setItem('accessToken', accessToken);
       localStorage.setItem('sessionToken', sessionToken);
 
-      Cookies.set('accessToken', accessToken, { path: '/' });
+      await Cookies.set('accessToken', accessToken, { path: '/' });
       router.push('/');
       console.log("Login berhasil!", data);
 
