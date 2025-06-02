@@ -38,14 +38,14 @@ export default function SignInForm() {
 
       const data = await res.json();
 
-      if (!res.ok) throw new Error(data.error || "Login gagal, bro");
+      if (!res.ok) throw new Error(data.error || "Login gagal");
 
       const { accessToken, sessionToken } = data.data;
       localStorage.setItem('accessToken', accessToken);
       localStorage.setItem('sessionToken', sessionToken);
 
       Cookies.set('accessToken', accessToken, { path: '/' });
-      router.push("/");
+      router.push('/');
       console.log("Login berhasil!", data);
 
     } catch (err: unknown) {
