@@ -4,8 +4,7 @@ import { useSidebar } from "@/context/SidebarContext";
 import AppHeader from "@/layout/AppHeader";
 import AppSidebar from "@/layout/AppSidebar";
 import Backdrop from "@/layout/Backdrop";
-import router from "next/router";
-import React, { useEffect } from "react";
+
 
 export default function AdminLayout({
   children,
@@ -13,18 +12,18 @@ export default function AdminLayout({
   children: React.ReactNode;
 }) {
 
-  useEffect(() => {
-    const token = document.cookie
-      .split('; ')
-      .find(row => row.startsWith('accessToken='))
-      ?.split('=')[1];
-    const protectedPaths = ['/', '/profile'];
-    const currentPath = window.location.pathname;
+  // useEffect(() => {
+  //   const token = document.cookie
+  //     .split('; ')
+  //     .find(row => row.startsWith('accessToken='))
+  //     ?.split('=')[1];
+  //   const protectedPaths = ['/', '/profile'];
+  //   const currentPath = window.location.pathname;
 
-    if (protectedPaths.some(path => currentPath.startsWith(path)) && !token) {
-      router.push('/signin');
-    }
-  }, []);
+  //   if (protectedPaths.some(path => currentPath.startsWith(path)) && !token) {
+  //     router.push('/signin');
+  //   }
+  // }, []);
 
   const { isExpanded, isHovered, isMobileOpen } = useSidebar();
   const mainContentMargin = isMobileOpen
