@@ -8,7 +8,6 @@ import Link from "next/link";
 
 import Cookies from 'js-cookie';
 import React, { useState } from "react";
-import { useRouter } from "next/navigation";
 
 export default function SignInForm() {
   const [formData, setFormData] = useState({ email: "", password: "" });
@@ -16,7 +15,6 @@ export default function SignInForm() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [isChecked, setIsChecked] = useState(false)
-  const router = useRouter()
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -47,12 +45,10 @@ export default function SignInForm() {
 
       Cookies.set('accessToken', accessToken, {
         path: '/',
-        secure: true, // WAJIB kalau pakai HTTPS
-        sameSite: 'lax', // atau 'strict'
-        domain: 'abyzainjayateknika.my.id', // Penting biar kebaca di middleware
+        secure: true,
+        sameSite: 'lax',
+        domain: 'admin.abyzainjayateknika.my.id',
       });
-
-      router.push("/")
 
       console.log("Login berhasil!", data);
 
