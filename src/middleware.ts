@@ -1,16 +1,14 @@
+// middleware.ts
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
 
 export function middleware(request: NextRequest) {
+  // Middleware tidak bisa akses localStorage langsung
+  // Kita akan menggunakan cookie sebagai alternatif
   const token = request.cookies.get('accessToken')?.value;
   const { pathname } = request.nextUrl;
 
-  // Jangan redirect kalau user udah di /signin
-  if (pathname === '/signin') {
-    return NextResponse.next();
-  }
-
-  // Proteksi hanya halaman root dan dashboard
+  // Daftar route yang diproteksi
   const protectedRoutes = ['/'];
 
   if (protectedRoutes.some(route => pathname.startsWith(route))) {
