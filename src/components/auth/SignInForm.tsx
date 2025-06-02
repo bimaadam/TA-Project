@@ -45,11 +45,15 @@ export default function SignInForm() {
       localStorage.setItem('accessToken', accessToken);
       localStorage.setItem('sessionToken', sessionToken);
 
-      Cookies.set('accessToken', accessToken, { path: '/' });
-      if (process.env.NODE_ENV !== "production") {
-        router.push('/');
-        router.refresh();
-      }
+      Cookies.set('accessToken', accessToken, {
+        path: '/',
+        secure: true, // WAJIB kalau pakai HTTPS
+        sameSite: 'lax', // atau 'strict'
+        domain: 'abyzainjayateknika.my.id', // Penting biar kebaca di middleware
+      });
+
+      router.push("/")
+
       console.log("Login berhasil!", data);
 
     } catch (err: unknown) {
