@@ -14,7 +14,10 @@ export default function AdminLayout({
 }) {
 
   useEffect(() => {
-    const token = localStorage.getItem('accessToken');
+    const token = document.cookie
+      .split('; ')
+      .find(row => row.startsWith('accessToken='))
+      ?.split('=')[1];
     const protectedPaths = ['/', '/profile'];
     const currentPath = window.location.pathname;
 
