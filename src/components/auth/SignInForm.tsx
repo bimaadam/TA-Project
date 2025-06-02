@@ -47,9 +47,9 @@ export default function SignInForm() {
 
       Cookies.set('accessToken', accessToken, { path: '/' });
       if (process.env.NODE_ENV !== "production") {
-        router.push('/');
-        router.refresh();
       }
+      router.push('/');
+      router.refresh();
       console.log("Login berhasil!", data);
 
     } catch (err: unknown) {
