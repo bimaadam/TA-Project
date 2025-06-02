@@ -33,6 +33,7 @@ export default function SignInForm() {
       const res = await fetch(`${baseURL}/auth/login`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
+        credentials: "include",
         body: JSON.stringify(formData),
       });
 
@@ -44,8 +45,9 @@ export default function SignInForm() {
       localStorage.setItem('accessToken', accessToken);
       localStorage.setItem('sessionToken', sessionToken);
 
-      await Cookies.set('accessToken', accessToken, { path: '/' });
+      Cookies.set('accessToken', accessToken, { path: '/' });
       router.push('/');
+      router.refresh()
       console.log("Login berhasil!", data);
 
     } catch (err: unknown) {
@@ -182,7 +184,6 @@ export default function SignInForm() {
                 {error && <p className="text-red-500 text-sm">{error}</p>}
                 <div>
                   <Button
-                    onClick={() => (handleSubmit)}
                     className="w-full"
                     size="sm"
                     type="submit"
