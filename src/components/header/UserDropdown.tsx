@@ -15,7 +15,7 @@ export default function UserDropdown() {
   const router = useRouter();
   const baseURL = process.env.NEXT_PUBLIC_API_URL
 
-  const fetchUserData = React.useCallback(async () => {
+  async function fetchUserData() {
     try {
       // Check if we're on client side
       if (typeof window === "undefined") return;
@@ -78,11 +78,11 @@ export default function UserDropdown() {
     } finally {
       setLoading(false);
     }
-  }, [baseURL, router]);
+  }
 
   useEffect(() => {
     fetchUserData();
-  }, [fetchUserData]);
+  }, []);
 
   const handleLogout = () => {
     // langsung hapus token dari localStorage
