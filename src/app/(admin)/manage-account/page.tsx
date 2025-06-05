@@ -6,7 +6,7 @@ export default function ManageAccountPage() {
         <div>
             <PageBreadcrumb pageTitle="Manage Account" />
             <ComponentCard title="Manage Account">
-                <h1>Manage Account</h1>
+                <h1>Manage Account Client Industrial</h1>
             </ComponentCard>
         </div>
     )
