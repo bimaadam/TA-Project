@@ -6,7 +6,7 @@ export default function PreviewInvoice() {
         <div className="max-w-[85rem] px-4 sm:px-6 lg:px-8 mx-auto my-4 sm:my-10">
             <div className="sm:w-11/12 lg:w-3/4 mx-auto">
                 {/* Card */}
-                <div className="flex flex-col p-4 sm:p-10 bg-auto shadow-xl shadow-black-950 dark:shadow-white rounded-xl">
+                <div className="flex flex-col p-4 sm:p-10 bg-auto shadow-sm shadow-gray-500 dark:shadow-white rounded-4xl">
                     {/* Grid */}
                     <div className="flex justify-between">
                         <div>
@@ -176,12 +176,14 @@ export default function PreviewInvoice() {
                         <h4 className="text-lg font-semibold text-gray-800 dark:text-neutral-200">Thank you!</h4>
                         <p className="text-gray-500 dark:text-neutral-500">If you have any questions concerning this invoice, use the following contact information:</p>
                         <div className="mt-2">
-                            <p className="block text-sm font-medium text-gray-800 dark:text-neutral-200">example@site.com</p>
-                            <p className="block text-sm font-medium text-gray-800 dark:text-neutral-200">+1 (062) 109-9222</p>
+                            <p className="block text-sm font-medium text-gray-800 dark:text-neutral-200">abyzainjayateknika.my.id</p>
+                            <p className="block text-sm font-medium text-gray-800 dark:text-neutral-200">+62 896-63-164-143</p>
                         </div>
                     </div>
 
-                    <p className="mt-5 text-sm text-gray-500 dark:text-neutral-500">© 2022 Preline.</p>
+                    <p className="mt-5 text-sm text-gray-500 dark:text-neutral-500">
+                        © {new Date().getFullYear()} Abyzain Jaya Teknika
+                    </p>
                 </div>
                 {/* End Card */}
 
