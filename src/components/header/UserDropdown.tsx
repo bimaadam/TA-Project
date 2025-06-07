@@ -118,7 +118,7 @@ export default function UserDropdown() {
           <Image
             width={44}
             height={44}
-            src="/images/user/AJT.png"
+            src="/images/logo/AJT.png"
             alt="User profile"
             className="object-cover"
           />
