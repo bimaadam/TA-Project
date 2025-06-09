@@ -1,5 +1,10 @@
+import PageBreadcrumb from "@/components/common/PageBreadCrumb";
+
 export default function ProjectPages() {
     return (
-        <div></div>
+        <div>
+            <PageBreadcrumb pageTitle="Project Management" />
+
+        </div>
     )
 }
