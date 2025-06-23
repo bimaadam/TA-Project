@@ -43,28 +43,19 @@ git clone https://github.com/bimaadam/TA-Project.git
 cd TA-Project
 pnpm install
 pnpm dev
+```
 
 Open http://localhost:3000 ✨
-
-
----
 
 🤍 Contributing
 
 Pull Requests are welcome.
 This project was forked by ririn-bytes 🌷
 
-
----
-
 💌 Credits
 
 Developed with 💖 by Bima Adam Nugraha
 Inspired by real needs at CV AbyZain Jaya Teknika
-
-
----
-
 <p align="center">
   <sub>💼 @TA-Project — 2025</sub>
 </p>
