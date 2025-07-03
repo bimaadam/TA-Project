@@ -1,69 +1,68 @@
-<div align="center">
-  <img src="https://capella.pics/2f6d6ebf-f8e6-4a7d-98c6-e71e810b51fa.png" width="120" />
-  <h1 style="border:none;">✨ Financial System UI Revamp ✨</h1>
-  <p><i>Designing with purpose, building with love 💖</i></p>
-</div>
+# ✨ Financial System UI Revamp - CV AbyZain Jaya Teknika
+
+こんにちは〜 I'm **Hikari Takahashi** (ヒカリ), a frontend developer based in Tokyo 🗼  
+This project is a sweet collaboration with [@bimaadam](https://github.com/bimaadam) to transform a manual Excel-based system into a beautiful digital platform 💻💗
 
 ---
 
-## 🐣 Project Overview
+## 🧠 Overview
 
-🌷 This is a **collaboration project** with [@bimaadam](https://github.com/bimaadam) to help bring digital transformation to a financial management system used by a growing industrial service company in Indonesia 🇮🇩
+> 🏢 Company: CV AbyZain Jaya Teknika  
+> 📌 Project: Financial Bookkeeping & Project Report System  
+> 🎯 Goal: Replace Excel with a responsive, easy-to-use web app
 
-I mainly supported the UI/UX side, ensuring clean components, smooth interactions, and an aesthetic layout using Tailwind CSS + Next.js 🌸
-
-> "Because clean UI isn't just for the eyes, but for the soul too 💫"
-
----
-
-## 🧩 Tech Stack
-
-| Tech        | What I used it for           |
-|-------------|------------------------------|
-| 💎 Next.js  | App Router architecture      |
-| 🎀 Tailwind | Styling, themes, responsive  |
-| 🔐 Prisma   | ORM for PostgreSQL connection |
-| 📘 TypeScript | Strong type support        |
-| ☁️ Vercel   | Hosting & previews           |
+I helped enhance the design, flow, and frontend architecture, ensuring a soft but professional experience 🌸
 
 ---
 
-## 🌼 UI Contribution Highlights
+## 🛠️ Tech Stack
 
-- Soft & readable layout with Poppins font  
-- Pretty dashboard grid system  
-- Focused on **light mode** clean aesthetic  
-- Button + form component polishing  
-- 🎀 Tailwind custom theme with primary pink + slate
-
----
-
-## 📸 Preview
-
-> UI Preview Coming soon...  
-> Currently in polishing phase 🪞
+- ⚛️ **Next.js 15** (App Router)
+- 🎨 **Tailwind CSS**
+- 🔡 **TypeScript**
+- 💾 **PostgreSQL** + Prisma ORM
+- ☁️ **Vercel** (Deployment)
 
 ---
 
-## 🤝 Credits
+## 🌼 My Contributions
 
-| Role        | Contributor                  |
-|-------------|------------------------------|
-| 💻 Dev Lead | [@bimaadam](https://github.com/bimaadam) |
-| 🎨 UI / UX  | [@engineerhikari](https://github.com/engineerhikari) |
-
----
-
-## 🐾 Personal Note
-
-> はじめまして！ヒカリです ♡  
-> I’m truly grateful to support this project. Designing systems that help people in real life feels so meaningful to me ✨  
-> よろしくお願いします 〜
+- Refined UI components (light theme, modern cards, layout grid)
+- Tailwind theming with pastel tones
+- Typography setup with `Poppins` font
+- Mobile responsive adjustments
+- Cleaned button & form styles 🧼
 
 ---
 
-<p align="center">
-  <img src="https://capella.pics/34fca346-bb3c-47f6-9348-c123df6b405e.png" width="200" />
-  <br/>
-  <i>made with love & matcha 🍵 by hikari</i>
-</p>
+## ✨ UI Goals
+
+- Soft, minimal, and pleasant interface
+- Everything responsive from desktop to phone
+- Easy for staff to input, view, and export data
+
+---
+
+## 👯‍♀️ Collaboration
+
+| Role        | GitHub Username                   |
+|-------------|-----------------------------------|
+| 💻 Fullstack Dev | [@bimaadam](https://github.com/bimaadam) |
+| 🎨 UI Designer | [@engineerhikari](https://github.com/engineerhikari) |
+
+---
+
+## 💬 Message from Hikari
+
+> 💕 "Design isn’t just what it looks like, it's how it *feels*.  
+> I'm so happy to help build something real and useful.  
+> Hope this helps the team work easier and happier!"  
+
+ありがとう〜! 🌷
+
+---
+
+## 📎 Note
+
+> 🛠 Project masih dalam tahap pengembangan.  
+> Coming soon: export laporan ke PDF + fitur login multi-role ✨
