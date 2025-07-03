@@ -1,61 +1,68 @@
-<h1 align="center">✨ Project Accounting Dashboard ✨</h1>
+# ✨ Financial System UI Revamp - CV AbyZain Jaya Teknika
 
-<p align="center">
-  🌿 A modern and minimal accounting dashboard to manage finances & project reports, built with love using Next.js 15, TypeScript, and Tailwind CSS.
-</p>
-
-<p align="center">
-  <img src="https://img.shields.io/badge/next.js-15-black?logo=nextdotjs" />
-  <img src="https://img.shields.io/badge/typescript-blue?logo=typescript" />
-  <img src="https://img.shields.io/badge/tailwindcss-38bdf8?logo=tailwindcss&logoColor=white" />
-  <img src="https://img.shields.io/badge/api-restful-ff69b4" />
-</p>
-
-## 🌸 Features
-- 📊 Financial dashboard overview
-- 🗂️ Project budgeting & tracking
-- 🔒 Secure RESTful API endpoints
-- 🎨 Soft, pastel-friendly UI powered by Tailwind CSS
-- ⚡ Fast and scalable, built on Next.js 15
+こんにちは〜 I'm **Hikari Takahashi** (ヒカリ), a frontend developer based in Tokyo 🗼  
+This project is a sweet collaboration with [@bimaadam](https://github.com/bimaadam) to transform a manual Excel-based system into a beautiful digital platform 💻💗
 
 ---
 
-## 🧱 Tech Stack
-| Tech         | Description                     |
-|--------------|---------------------------------|
-| **Next.js 15** | App router with Server Actions |
-| **TypeScript** | Type-safe frontend & backend   |
-| **Tailwind CSS** | Beautiful, responsive UI      |
-| **Prisma**     | Elegant database ORM          |
-| **REST API**   | Clean & structured endpoints  |
+## 🧠 Overview
+
+> 🏢 Company: CV AbyZain Jaya Teknika  
+> 📌 Project: Financial Bookkeeping & Project Report System  
+> 🎯 Goal: Replace Excel with a responsive, easy-to-use web app
+
+I helped enhance the design, flow, and frontend architecture, ensuring a soft but professional experience 🌸
 
 ---
 
-## ✨ Screenshots
-> _Coming soon!_ 🖼️
+## 🛠️ Tech Stack
+
+- ⚛️ **Next.js 15** (App Router)
+- 🎨 **Tailwind CSS**
+- 🔡 **TypeScript**
+- 💾 **PostgreSQL** + Prisma ORM
+- ☁️ **Vercel** (Deployment)
 
 ---
 
-## 🚀 Getting Started
+## 🌼 My Contributions
 
-```bash
-git clone https://github.com/bimaadam/TA-Project.git
-cd TA-Project
-pnpm install
-pnpm dev
-```
+- Refined UI components (light theme, modern cards, layout grid)
+- Tailwind theming with pastel tones
+- Typography setup with `Poppins` font
+- Mobile responsive adjustments
+- Cleaned button & form styles 🧼
 
-Open http://localhost:3000 ✨
+---
 
-🤍 Contributing
+## ✨ UI Goals
 
-Pull Requests are welcome.
-This project was forked by ririn-bytes 🌷
+- Soft, minimal, and pleasant interface
+- Everything responsive from desktop to phone
+- Easy for staff to input, view, and export data
 
-💌 Credits
+---
 
-Developed with 💖 by Bima Adam Nugraha
-Inspired by real needs at CV AbyZain Jaya Teknika
-<p align="center">
-  <sub>💼 @TA-Project — 2025</sub>
-</p>
+## 👯‍♀️ Collaboration
+
+| Role        | GitHub Username                   |
+|-------------|-----------------------------------|
+| 💻 Fullstack Dev | [@bimaadam](https://github.com/bimaadam) |
+| 🎨 UI Designer | [@engineerhikari](https://github.com/engineerhikari) |
+
+---
+
+## 💬 Message from Hikari
+
+> 💕 "Design isn’t just what it looks like, it's how it *feels*.  
+> I'm so happy to help build something real and useful.  
+> Hope this helps the team work easier and happier!"  
+
+ありがとう〜! 🌷
+
+---
+
+## 📎 Note
+
+> 🛠 Project masih dalam tahap pengembangan.  
+> Coming soon: export laporan ke PDF + fitur login multi-role ✨
