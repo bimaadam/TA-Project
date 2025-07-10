@@ -21,13 +21,17 @@ export default function AdminLayout({
       .split('; ')
       .find(row => row.startsWith('accessToken='))
       ?.split('=')[1];
+
     const protectedPaths = ['/', '/profile'];
     const currentPath = window.location.pathname;
 
-    if (protectedPaths.some(path => currentPath.startsWith(path)) && !token) {
+    const isDev = process.env.NODE_ENV !== 'production';
+
+    if (!isDev && protectedPaths.some(path => currentPath.startsWith(path)) && !token) {
       router.push('/signin');
     }
   }, [router]);
+
 
   const { isExpanded, isHovered, isMobileOpen } = useSidebar();
   const mainContentMargin = isMobileOpen

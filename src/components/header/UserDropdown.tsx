@@ -17,16 +17,25 @@ export default function UserDropdown() {
 
   async function fetchUserData() {
     try {
-      // Check if we're on client side
       if (typeof window === "undefined") return;
 
-      const token = localStorage.getItem('accessToken');
+      const isDev =
+        process.env.NODE_ENV !== 'production' ||
+        process.env.NEXT_PUBLIC_USE_DUMMY_USER === 'true';
 
-      if (!token) {
-        throw new Error('No access token found in localStorage');
+      if (isDev) {
+        console.log('[DEV] Skip fetch, pakai dummy user');
+        setUser({
+          name: 'Bima Dev',
+          email: 'dev@localhost.com'
+        });
+        setLoading(false);
+        return;
       }
 
-      // Verify token format
+      const token = localStorage.getItem('accessToken');
+      if (!token) throw new Error('401: No access token');
+
       if (!token.startsWith('eyJhbGciOiJ')) {
         throw new Error('Invalid token format');
       }
@@ -34,19 +43,17 @@ export default function UserDropdown() {
       const response = await fetch(`${baseURL}/auth/profile`, {
         method: "GET",
         headers: {
-          "Authorization": `Bearer ${token}`,
+          Authorization: `Bearer ${token}`,
           "Content-Type": "application/json",
-          "Accept": "application/json"
+          Accept: "application/json"
         },
         credentials: 'include',
         mode: 'cors'
       });
 
-      // Handle 401 specifically
       if (response.status === 401) {
         localStorage.removeItem('accessToken');
-        router.push('/signin');
-        throw new Error('Session expired. Please login again.');
+        throw new Error('401: Session expired');
       }
 
       if (!response.ok) {
@@ -58,9 +65,7 @@ export default function UserDropdown() {
 
       const data = await response.json();
 
-      if (!data.user) {
-        throw new Error('User data not found in response');
-      }
+      if (!data.user) throw new Error('User data not found in response');
 
       setUser({
         name: data.user.name || 'User',
@@ -71,8 +76,12 @@ export default function UserDropdown() {
       console.error('Error fetching user:', err);
       setError(err instanceof Error ? err.message : 'Failed to fetch user data');
 
-      // If unauthorized, redirect to login
-      if (err instanceof Error && err.message.includes('401')) {
+      const isProd = process.env.NODE_ENV === 'production';
+      if (
+        isProd &&
+        err instanceof Error &&
+        err.message.includes('401')
+      ) {
         router.push('/signin');
       }
     } finally {
@@ -80,9 +89,12 @@ export default function UserDropdown() {
     }
   }
 
+
   useEffect(() => {
     fetchUserData();
   }, []);
+
+
 
   const handleLogout = () => {
     // langsung hapus token dari localStorage

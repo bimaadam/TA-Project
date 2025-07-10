@@ -1,20 +1,24 @@
-// middleware.ts
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
 
 export function middleware(request: NextRequest) {
+  const { pathname, hostname } = request.nextUrl;
   const token = request.cookies.get('accessToken')?.value;
-  const { pathname } = request.nextUrl;
 
-  const protectionroute = ['/'];
+  console.log('[MIDDLEWARE]', { hostname, pathname, token });
 
-  
-  if (protectionroute.some(route => pathname.startsWith(route))) {
-    if (!token) {
-      const url = request.nextUrl.clone();
-      url.pathname = '/signin';
-      return NextResponse.redirect(url);
-    }
+  const isLocalhost = hostname === 'localhost' || hostname === '127.0.0.1';
+  if (isLocalhost) {
+    console.log('[MIDDLEWARE] Skip auth: localhost detected');
+    return NextResponse.next();
+  }
+
+  const protectedRoutes = ['/'];
+  if (protectedRoutes.some(route => pathname.startsWith(route)) && !token) {
+    const url = request.nextUrl.clone();
+    url.pathname = '/signin';
+    console.log('[MIDDLEWARE] Redirect to signin');
+    return NextResponse.redirect(url);
   }
 
   return NextResponse.next();

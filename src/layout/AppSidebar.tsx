@@ -1,5 +1,5 @@
 "use client";
-import React, { useEffect, useRef, useState, useCallback } from "react";
+import React, { useEffect, useRef, useState, useCallback, ReactNode } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { usePathname } from "next/navigation";
@@ -21,65 +21,46 @@ type NavItem = {
   name: string;
   icon: React.ReactNode;
   path?: string;
-  subItems?: { name: string; path: string; pro?: boolean; new?: boolean }[];
+  subItems?: { icon?: ReactNode; name: string; path: string; pro?: boolean; new?: boolean }[];
 };
 
 const navItems: NavItem[] = [
   {
     icon: <GridIcon />,
     name: "Dashboard",
-    subItems: [{ name: "Ecommerce", path: "/", pro: false }],
+    path: "/", // Langsung ke halaman ringkasan Dashboard
+    // Jika ada sub-item khusus untuk dashboard, bisa ditambahkan di sini, contoh:
+    // subItems: [{ name: "Ringkasan Umum", path: "/" }],
   },
-  // {
-  //   icon: <CalenderIcon />,
-  //   name: "Calendar",
-  //   path: "/calendar",
-  // },
-  // {
-  //   icon: <UserCircleIcon />,
-  //   name: "User Profile",
-  //   path: "/profile",
-  // },
-
-  // {
-  //   name: "Forms",
-  //   icon: <ListIcon />,
-  //   subItems: [{ name: "Form Elements", path: "/form-elements", pro: false }],
-  // },
-  // {
-  //   name: "Tables",
-  //   icon: <TableIcon />,
-  //   subItems: [{ name: "Basic Tables", path: "/basic-tables", pro: false }],
-  // },
   {
-    name: "Project Management",
+    name: "Manajemen Proyek",
     icon: <TableIcon />,
     subItems: [
-      { name: "Data Proyek", path: "/projects" },
-      // { name: "Input Proyek Baru", path: "/projects/new" },
+      { name: "Daftar Proyek", path: "/projects" },
       { name: "Progress Proyek", path: "/projects/progress" },
+      // { name: "Input Proyek Baru", path: "/projects/new" }, // Bisa diaktifkan jika diperlukan
     ],
   },
   {
-    name: "Finance & Transactions",
+    name: "Keuangan & Transaksi", // Mengganti "Finance & Transactions"
     icon: <DollarLineIcon />,
     subItems: [
-      { name: "Transaksi Masuk", path: "/finance/income" },
-      { name: "Transaksi Keluar", path: "/finance/expense" },
+      { name: "Penerimaan Kas", path: "/finance/income" }, // Mengganti "Transaksi Masuk"
+      { name: "Pengeluaran Kas", path: "/finance/expense" }, // Mengganti "Transaksi Keluar"
       { name: "Jurnal Umum", path: "/finance/journal" },
-      { name: "Tambah Order", path: "/finance/order" }
+      { name: "Entri Penjualan & Order", path: "/finance/order" }, // Mengganti "Tambah Order"
     ],
   },
   {
-    name: "Sales & Payment",
-    icon: <ListIcon />,
+    name: "Penagihan & Pembayaran", // Mengganti "Sales & Payment"
+    icon: <ListIcon />, // Menggunakan ikon yang sesuai
     subItems: [
-      { name: "Data Invoice", path: "/data-invoice" },
-      { name: "Status Pembayaran", path: "/payment-status" }
+      { name: "Daftar Faktur", path: "/data-invoice" }, // Mengganti "Data Invoice"
+      { name: "Status Pembayaran", path: "/payment-status" },
     ],
   },
   {
-    name: "Reports",
+    name: "Laporan",
     icon: <PieChartIcon />,
     subItems: [
       { name: "Laporan Proyek", path: "/project-report" },
@@ -88,7 +69,7 @@ const navItems: NavItem[] = [
     ],
   },
   {
-    name: "Master Data",
+    name: "Data Master", // Mengganti "Master Data"
     icon: <BoltIcon />,
     subItems: [
       { name: "Data Klien", path: "/master-data-klien" },
@@ -96,20 +77,12 @@ const navItems: NavItem[] = [
     ],
   },
   {
-    name: "Chat Klien",
+    name: "Komunikasi", // Mengganti "Chat Klien" untuk kategori yang lebih luas
     icon: <ChatIcon />,
     subItems: [
-      { name: "Chat Klient", path: "/chat" },
+      { name: "Pesan Klien", path: "/chat" }, // Mengganti "Chat Klient"
     ],
   },
-  // {
-  //   name: "Pages",
-  //   icon: <PageIcon />,
-  //   subItems: [
-  //     { name: "Blank Page", path: "/blank", pro: false },
-  //     { name: "404 Error", path: "/error-404", pro: false },
-  //   ],
-  // },
 ];
 
 const othersItems: NavItem[] = [
@@ -135,7 +108,7 @@ const othersItems: NavItem[] = [
         fill=""
       />
     </svg>,
-    path: "/signout"
+    path: "/signin"
   }
   // {
   //   icon: <PieChartIcon />,
@@ -175,7 +148,7 @@ const AppSidebar: React.FC = () => {
     navItems: NavItem[],
     menuType: "main" | "others"
   ) => (
-    <ul className="flex flex-col gap-4">
+    <ul className="flex flex-col gap-5">
       {navItems.map((nav, index) => (
         <li key={nav.name}>
           {nav.subItems ? (
@@ -202,7 +175,7 @@ const AppSidebar: React.FC = () => {
               )}
               {(isExpanded || isHovered || isMobileOpen) && (
                 <ChevronDownIcon
-                  className={`ml-auto w-5 h-5 transition-transform duration-200  ${openSubmenu?.type === menuType &&
+                  className={`ml-auto w-5 h-4 transition-transform duration-200  ${openSubmenu?.type === menuType &&
                     openSubmenu?.index === index
                     ? "rotate-180 text-brand-500"
                     : ""
@@ -356,9 +329,9 @@ const AppSidebar: React.FC = () => {
     <aside
       className={`fixed mt-16 flex flex-col lg:mt-0 top-0 px-5 left-0 bg-white dark:bg-gray-900 dark:border-gray-800 text-gray-900 h-screen transition-all duration-300 ease-in-out z-50 border-r border-gray-200 
         ${isExpanded || isMobileOpen
-          ? "w-[290px]"
+          ? "w-[300px]"
           : isHovered
-            ? "w-[290px]"
+            ? "w-[300px]"
             : "w-[90px]"
         }
         ${isMobileOpen ? "translate-x-0" : "-translate-x-full"}
