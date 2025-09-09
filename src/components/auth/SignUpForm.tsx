@@ -1,4 +1,6 @@
 "use client";
+import { useRouter } from "next/navigation";
+import { authService } from "@/services/auth.service";
 import Checkbox from "@/components/form/input/Checkbox";
 import Input from "@/components/form/input/InputField";
 import Label from "@/components/form/Label";
@@ -7,16 +9,19 @@ import Link from "next/link";
 import React, { useState } from "react";
 
 export default function SignUpForm() {
+  const router = useRouter();
   const [showPassword, setShowPassword] = useState(false);
   const [isChecked, setIsChecked] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [successMessage, setSuccessMessage] = useState<string | null>(null); // New state
   const [formdata, setFormdata] = useState({
     firstName: "",
     lastName: "",
-    name: "",
+    fullName: "", // Will be derived from firstName and lastName
     email: "",
     password: "",
+    role: "CLIENT", // Hardcoded as per discussion
     isVerified: false,
   });
 
@@ -24,26 +29,31 @@ export default function SignUpForm() {
     e.preventDefault();
     setLoading(true);
     setError(null);
+    setSuccessMessage(null); // Clear previous success message
 
-    const baseURL = process.env.NEXT_PUBLIC_API_URL
     try {
-      const res = await fetch(`${baseURL}/auth/register`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(formdata),
-      });
+      // Construct payload for authService.register
+      const payload = {
+        firstName: formdata.firstName,
+        lastName: formdata.lastName,
+        fullName: `${formdata.firstName} ${formdata.lastName}`,
+        email: formdata.email,
+        password: formdata.password,
+        role: '', 
+        isVerified: formdata.isVerified
+      };
 
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.error || "Something went wrong");
-      console.log("Berhasil daftar!", data);
-    } catch (err: unknown) {
-      if (err instanceof Error) {
-        setError(err.message);
-      } else {
-        setError('Terjadi error yang tidak diketahui');
-      }
-    }
-    finally {
+      const response = await authService.register(payload);
+      // authService.saveToken(response.data.accessToken); // Removed as per user's request to redirect to signin
+      setSuccessMessage(response.message || "Registrasi berhasil!"); // Use message from response or default
+      console.log("Registrasi berhasil!", response);
+      // Redirect after a short delay to allow message to be seen
+      setTimeout(() => {
+        router.push("/signin");
+      }, 1500); // Redirect after 1.5 seconds
+    } catch (err: any) {
+      setError(err.message || 'Terjadi error saat registrasi');
+    } finally {
       setLoading(false);
     }
   };
@@ -236,9 +246,16 @@ export default function SignUpForm() {
                 </p>
               )}
 
+              {/* Success Message */}
+              {successMessage && (
+                <p className="text-sm text-success-500">
+                  {successMessage}
+                </p>
+              )}
+
               {/* Submit Button */}
               <div>
-                <button onChange={handleSubmit} className="flex items-center justify-center w-full px-4 py-3 text-sm font-medium text-white transition rounded-lg bg-brand-500 shadow-theme-xs hover:bg-brand-600">
+                <button type="submit" className="flex items-center justify-center w-full px-4 py-3 text-sm font-medium text-white transition rounded-lg bg-brand-500 shadow-theme-xs hover:bg-brand-600">
                   {loading ? "Loading..." : "Sign Up"}
                 </button>
               </div>

@@ -1,29 +1,29 @@
-import { NextResponse } from 'next/server';
-import type { NextRequest } from 'next/server';
+import { NextResponse } from 'next/server'
+import type { NextRequest } from 'next/server'
 
 export function middleware(request: NextRequest) {
-  const { pathname, hostname } = request.nextUrl;
-  const token = request.cookies.get('accessToken')?.value;
+  const token = request.cookies.get('accessToken')?.value
+  const { pathname } = request.nextUrl
 
-  console.log('[MIDDLEWARE]', { hostname, pathname, token });
-
-  const isLocalhost = hostname === 'localhost' || hostname === '127.0.0.1';
-  if (isLocalhost) {
-    console.log('[MIDDLEWARE] Skip auth: localhost detected');
-    return NextResponse.next();
+  // belum login → tendang ke /signin
+  if (!token && pathname === '/') {
+    return NextResponse.redirect(new URL('/signin', request.url))
   }
 
-  const protectedRoutes = ['/'];
-  if (protectedRoutes.some(route => pathname.startsWith(route)) && !token) {
-    const url = request.nextUrl.clone();
-    url.pathname = '/signin';
-    console.log('[MIDDLEWARE] Redirect to signin');
-    return NextResponse.redirect(url);
+  // udah login tapi buka signin → lempar ke /
+  if (token && pathname === '/signin') {
+    return NextResponse.redirect(new URL('/', request.url))
   }
 
-  return NextResponse.next();
+  return NextResponse.next()
 }
 
 export const config = {
-  matcher: ['/', '/home/:path*'],
-};
+  matcher: [
+    '/home/:path*',  // all pages under /home
+    '/signin',       // signin page
+    '/signup',       // signup page
+    '/reset-pwd',    // reset password page
+    '/'              // root path
+  ],
+}

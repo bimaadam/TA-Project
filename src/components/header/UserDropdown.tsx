@@ -1,113 +1,19 @@
 "use client";
 import Image from "next/image";
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react"; // Removed useEffect
 import { Dropdown } from "../ui/dropdown/Dropdown";
 import { DropdownItem } from "../ui/dropdown/DropdownItem";
-import { useRouter } from "next/navigation";
-import Cookies from 'js-cookie';
+import { useUser } from '@/context/UserContext'; // New import
 
 
 export default function UserDropdown() {
   const [isOpen, setIsOpen] = useState(false);
-  const [user, setUser] = useState<{ name: string, email: string } | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [, setError] = useState<string | null>(null);
-  const router = useRouter();
-  const baseURL = process.env.NEXT_PUBLIC_API_URL
-
-  async function fetchUserData() {
-    try {
-      if (typeof window === "undefined") return;
-
-      const isDev =
-        process.env.NODE_ENV !== 'production' ||
-        process.env.NEXT_PUBLIC_USE_DUMMY_USER === 'true';
-
-      if (isDev) {
-        console.log('[DEV] Skip fetch, pakai dummy user');
-        setUser({
-          name: 'Bima Dev',
-          email: 'dev@localhost.com'
-        });
-        setLoading(false);
-        return;
-      }
-
-      const token = localStorage.getItem('accessToken');
-      if (!token) throw new Error('401: No access token');
-
-      if (!token.startsWith('eyJhbGciOiJ')) {
-        throw new Error('Invalid token format');
-      }
-
-      const response = await fetch(`${baseURL}/auth/profile`, {
-        method: "GET",
-        headers: {
-          Authorization: `Bearer ${token}`,
-          "Content-Type": "application/json",
-          Accept: "application/json"
-        },
-        credentials: 'include',
-        mode: 'cors'
-      });
-
-      if (response.status === 401) {
-        localStorage.removeItem('accessToken');
-        throw new Error('401: Session expired');
-      }
-
-      if (!response.ok) {
-        const errorData = await response.json().catch(() => ({}));
-        throw new Error(
-          errorData.message || `HTTP error! status: ${response.status}`
-        );
-      }
-
-      const data = await response.json();
-
-      if (!data.user) throw new Error('User data not found in response');
-
-      setUser({
-        name: data.user.name || 'User',
-        email: data.user.email || 'No email'
-      });
-
-    } catch (err) {
-      console.error('Error fetching user:', err);
-      setError(err instanceof Error ? err.message : 'Failed to fetch user data');
-
-      const isProd = process.env.NODE_ENV === 'production';
-      if (
-        isProd &&
-        err instanceof Error &&
-        err.message.includes('401')
-      ) {
-        router.push('/signin');
-      }
-    } finally {
-      setLoading(false);
-    }
-  }
-
-
-  useEffect(() => {
-    fetchUserData();
-  }, []);
-
-
+  const { user, loading, logout } = useUser(); // Consume context
 
   const handleLogout = () => {
-    // langsung hapus token dari localStorage
-    localStorage.removeItem('accessToken');
-    Cookies.remove('accessToken');
-
-    // reset user state
-    setUser(null);
-
-    // redirect ke signin
-    router.push('/signin');
+    logout(); // Use logout from context
   };
-
+  
 
   function toggleDropdown(e: React.MouseEvent<HTMLButtonElement>) {
     e.stopPropagation();
@@ -137,7 +43,7 @@ export default function UserDropdown() {
         </span>
 
         <span className="block mr-1 font-medium text-theme-sm">
-          {loading ? "Loading..." : user?.name || user?.email || "Guest"}
+          {loading ? "Loading..." : user?.fullName || user?.email || "Guest"}
         </span>
 
         <svg
@@ -166,7 +72,7 @@ export default function UserDropdown() {
       >
         <div className="px-3 py-2">
           <span className="block font-medium text-gray-700 text-theme-sm dark:text-gray-400">
-            {user?.name || "User"}
+            {user?.fullName || "User"}
           </span>
           <span className="mt-0.5 block text-theme-xs text-gray-500 dark:text-gray-400">
             {user?.email || "No email"}

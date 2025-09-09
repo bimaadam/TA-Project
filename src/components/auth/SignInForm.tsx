@@ -1,62 +1,54 @@
 "use client";
+import { useRouter } from "next/navigation";
+import { authService } from "@/services/auth.service";
 import Checkbox from "@/components/form/input/Checkbox";
 import Input from "@/components/form/input/InputField";
 import Label from "@/components/form/Label";
 import Button from "@/components/ui/button/Button";
 import { ChevronLeftIcon, EyeCloseIcon, EyeIcon } from "@/icons";
 import Link from "next/link";
-
-import Cookies from 'js-cookie';
 import React, { useState } from "react";
+import { useUser } from "@/context/UserContext";
 
 export default function SignInForm() {
+  const router = useRouter();
+  const {fetchUser} = useUser()
   const [formData, setFormData] = useState({ email: "", password: "" });
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [isChecked, setIsChecked] = useState(false)
-
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value } = e.target;
-    setFormData((prev) => ({ ...prev, [name]: value }));
-  };
+  const [isChecked, setIsChecked] = useState(false);
+  const [successMessage, setSuccessMessage] = useState<string | null>(null);
 
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setLoading(true);
-    setError(null);
-    const baseURL = process.env.NEXT_PUBLIC_API_URL
+  e.preventDefault();
+  setLoading(true);
+  setError(null);
+  setSuccessMessage(null);
 
-    try {
-      const res = await fetch(`${baseURL}/auth/login`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        credentials: "include",
-        body: JSON.stringify(formData),
-      });
+  try {
+    const response = await authService.login(formData);
+    authService.saveToken(response.data.accessToken);
+    setSuccessMessage(response.message || "Login Berhasil");
 
-      const data = await res.json();
+    // kasih waktu 4 detik baru redirect
+    await fetchUser();
+    setTimeout(() => {
+      router.push("/");
+      setLoading(false); // loading baru false setelah delay
+    }, 4000);
 
-      if (!res.ok) throw new Error(data.error || "Login gagal");
-
-      const { accessToken, sessionToken } = data.data;
-      localStorage.setItem('accessToken', accessToken);
-      localStorage.setItem('sessionToken', sessionToken);
-
-      Cookies.set('accessToken', accessToken, { path: '/' });
-      window.location.href = '/';
-      console.log("Login berhasil!", data);
-
-    } catch (err: unknown) {
-      if (err instanceof Error) {
-        setError(err.message);
-      } else {
-        setError("Terjadi error yang tidak diketahui");
-      }
-    } finally {
-      setLoading(false);
-    }
+  } catch (err: any) {
+    setError(err.message || "Terjadi error saat login");
+    setLoading(false); // kalo error langsung false, ga usah delay
   }
+};
+
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = e.target; // No need for type, checked here
+    setFormData((prev) => ({ ...prev, [name]: value })); // Use setFormData
+  };
 
   return (
     <div className="flex flex-col flex-1 lg:w-1/2 w-full">
@@ -179,13 +171,18 @@ export default function SignInForm() {
                   </Link>
                 </div>
                 {error && <p className="text-red-500 text-sm">{error}</p>}
+                {successMessage && (
+                  <p className="text-sm text-success-500">
+                    {successMessage}
+                  </p>
+                )}
                 <div>
                   <Button
                     className="w-full"
                     size="sm"
                     type="submit"
                   >
-                    {loading ? "Loading..." : "Login"}
+                    {loading  ? "Loading..." : "Login"}
                   </Button>
 
                 </div>
@@ -209,3 +206,7 @@ export default function SignInForm() {
     </div>
   );
 }
+function fetcUser() {
+  throw new Error("Function not implemented.");
+}
+
