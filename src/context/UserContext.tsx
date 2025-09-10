@@ -35,8 +35,8 @@ interface UserProviderProps {
 }
 
 export const UserProvider: React.FC<UserProviderProps> = ({ children }) => {
-  const [user, setUser] = useState<{ fullName?: string; email?: string } | null>(null);
-  // const [user, setUser] = useState<User | null>(null);
+  // const [user, setUser] = useState<{ fullName?: string; email?: string } | null>(null);
+  const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [isReady, setIsReady] = useState(false); // New state
@@ -49,19 +49,27 @@ export const UserProvider: React.FC<UserProviderProps> = ({ children }) => {
   const userData = await authService.getProfile();
   setUser(userData); // ini udah langsung { id, email, fullName, role }
 
-  } catch (err: any) {
-    setError(err.message || "Failed to fetch user profile.");
-    setUser(null);
-    if (err.message && err.message.includes("401")) {
+  } catch (err: unknown) {
+  let message = "Failed to fetch user profile.";
+
+  if (err instanceof Error) {
+    message = err.message;
+
+    if (err.message.includes("401")) {
       authService.removeToken();
       setTimeout(() => {
-        router.push('/signin')
-      }, 2000)
+        router.push('/signin');
+      }, 2000);
     }
-  } finally {
-    setLoading(false);
-    setIsReady(true);
   }
+
+  setError(message);
+  setUser(null);
+} finally {
+  setLoading(false);
+  setIsReady(true);
+}
+
 };
 
 

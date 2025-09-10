@@ -1,9 +1,9 @@
 import PageBreadcrumb from "@/components/common/PageBreadCrumb";
 import PreviewInvoice from "@/components/data-invoice/PreviewInvoice";
 
-export default function DetailInvoice() {
+export default function DetailInvoice({ params }: { params: { id: string } }) {
     return <div>
         <PageBreadcrumb pageTitle="Invoice Details" />
-        <PreviewInvoice />
+        <PreviewInvoice invoiceId={params.id} />
     </div>
 }

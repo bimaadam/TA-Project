@@ -36,12 +36,16 @@ export default function SignInForm() {
     setTimeout(() => {
       router.push("/");
       setLoading(false); // loading baru false setelah delay
-    }, 4000);
+    }, 2000);
 
-  } catch (err: any) {
-    setError(err.message || "Terjadi error saat login");
-    setLoading(false); // kalo error langsung false, ga usah delay
+  } catch (err: unknown) {
+  if (err instanceof Error) {
+    setError(err.message);
+  } else {
+    setError("Terjadi error saat login");
   }
+  setLoading(false);
+}
 };
 
 
@@ -205,8 +209,5 @@ export default function SignInForm() {
       </div>
     </div>
   );
-}
-function fetcUser() {
-  throw new Error("Function not implemented.");
 }
 

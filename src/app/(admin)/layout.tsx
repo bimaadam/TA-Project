@@ -30,7 +30,7 @@ export default function AdminLayout({
     if (user && publicPaths.includes(pathname)) {
       setTimeout(() => {
         router.push('/')
-      }, 8400)
+      }, 1400)
       return;
     }
 

@@ -29,33 +29,32 @@ const navItems: NavItem[] = [
     icon: <GridIcon />,
     name: "Dashboard",
     path: "/", // Langsung ke halaman ringkasan Dashboard
-    // Jika ada sub-item khusus untuk dashboard, bisa ditambahkan di sini, contoh:
-    // subItems: [{ name: "Ringkasan Umum", path: "/" }],
   },
   {
     name: "Manajemen Proyek",
     icon: <TableIcon />,
     subItems: [
       { name: "Daftar Proyek", path: "/projects" },
+      { name: "Tambah Proyek", path: "/projects/new" },
       { name: "Progress Proyek", path: "/projects/progress" },
-      // { name: "Input Proyek Baru", path: "/projects/new" }, // Bisa diaktifkan jika diperlukan
     ],
   },
   {
-    name: "Keuangan & Transaksi", // Mengganti "Finance & Transactions"
+    name: "Keuangan & Transaksi",
     icon: <DollarLineIcon />,
     subItems: [
-      { name: "Penerimaan Kas", path: "/finance/income" }, // Mengganti "Transaksi Masuk"
-      { name: "Pengeluaran Kas", path: "/finance/expense" }, // Mengganti "Transaksi Keluar"
+      { name: "Penerimaan Kas", path: "/finance/income" },
+      { name: "Pengeluaran Kas", path: "/finance/expense" },
       { name: "Jurnal Umum", path: "/finance/journal" },
-      { name: "Entri Penjualan & Order", path: "/finance/order" }, // Mengganti "Tambah Order"
+      { name: "Daftar Entri Jurnal", path: "/finance/journal-entries" },
+      { name: "Entri Penjualan & Order", path: "/finance/order" },
     ],
   },
   {
-    name: "Penagihan & Pembayaran", // Mengganti "Sales & Payment"
-    icon: <ListIcon />, // Menggunakan ikon yang sesuai
+    name: "Penagihan & Pembayaran",
+    icon: <ListIcon />,
     subItems: [
-      { name: "Daftar Faktur", path: "/data-invoice" }, // Mengganti "Data Invoice"
+      { name: "Daftar Faktur", path: "/finance/invoices" },
       { name: "Status Pembayaran", path: "/payment-status" },
     ],
   },
@@ -69,18 +68,19 @@ const navItems: NavItem[] = [
     ],
   },
   {
-    name: "Data Master", // Mengganti "Master Data"
+    name: "Data Master",
     icon: <BoltIcon />,
     subItems: [
       { name: "Data Klien", path: "/master-data-klien" },
+      { name: "Data Produk", path: "/master-data-produk" },
       { name: "Data Karyawan", path: "/master-data-karyawan" },
     ],
   },
   {
-    name: "Komunikasi", // Mengganti "Chat Klien" untuk kategori yang lebih luas
+    name: "Komunikasi",
     icon: <ChatIcon />,
     subItems: [
-      { name: "Pesan Klien", path: "/chat" }, // Mengganti "Chat Klient"
+      { name: "Pesan Klien", path: "/chat" },
     ],
   },
 ];
