@@ -65,6 +65,8 @@ const navItems: NavItem[] = [
       { name: "Laporan Proyek", path: "/project-report" },
       { name: "Laporan Keuangan", path: "/finance-report" },
       { name: "Laba Rugi Proyek", path: "/project-profit-loss" },
+      { name: "Laporan Laba Rugi", path: "/reports/income-statement" }, // New link
+      { name: "Laporan Neraca", path: "/reports/balance-sheet" }
     ],
   },
   {

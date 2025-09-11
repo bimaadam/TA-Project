@@ -1,17 +1,14 @@
+import IncomeList from "@/components/income/IncomeList";
+import ComponentCard from "@/components/common/ComponentCard";
 import PageBreadcrumb from "@/components/common/PageBreadCrumb";
-import Transaction from "@/components/transaction";
-import { Metadata } from "next";
 
-export const metadata: Metadata = {
-    title: "Transaksi | Admin Abyzain Jaya Teknika",
-    description: "Menu Transaksi"
-}
-
-export default function FinancePageIncome() {
+export default function PemasukanPage() {
     return (
-        <>
-            <PageBreadcrumb pageTitle="Transaksi Msuk" />
-            <Transaction />
-        </>
-    )
+        <div>
+            <PageBreadcrumb pageTitle="Daftar Pemasukan" />
+            <ComponentCard title="Pemasukan">
+                <IncomeList />
+            </ComponentCard>
+        </div>
+    );
 }

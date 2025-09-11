@@ -3,17 +3,69 @@ import { ApexOptions } from "apexcharts";
 import dynamic from "next/dynamic";
 import { MoreDotIcon } from "@/icons";
 import { DropdownItem } from "../ui/dropdown/DropdownItem";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Dropdown } from "../ui/dropdown/Dropdown";
+import { journalService, JournalEntry } from '@/services/journal.service';
+import { accountService, Account } from '@/services/account.service';
 
 // Dynamically import the ReactApexChart component
 const ReactApexChart = dynamic(() => import("react-apexcharts"), {
   ssr: false,
 });
 
-export default function MonthlySalesChart() {
+export default function MonthlyFinancialChart() {
+  const [seriesData, setSeriesData] = useState<{
+    name: string;
+    data: number[];
+  }[]>([
+    { name: "Pendapatan", data: [] },
+    { name: "Pengeluaran", data: [] },
+  ]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      setLoading(true);
+      try {
+        const [journalRes, accountRes] = await Promise.all([
+          journalService.getJournalEntriesWithLines(), // Get all journal entries with lines
+          accountService.getAccounts(),
+        ]);
+
+        const monthlyRevenue: number[] = Array(12).fill(0);
+        const monthlyExpense: number[] = Array(12).fill(0);
+
+        journalRes.forEach(entry => {
+          const month = new Date(entry.date).getMonth(); // 0-11
+          entry.lines.forEach(line => {
+            const account = accountRes.find(acc => acc.id === line.accountId);
+            if (account) {
+              if (account.categoryType === 'REVENUE' || account.categoryType === 'OTHER_INCOME') {
+                monthlyRevenue[month] += line.isDebit ? -line.amount : line.amount;
+              } else if (account.categoryType === 'EXPENSE' || account.categoryType === 'COST_OF_GOODS_SOLD' || account.categoryType === 'OTHER_EXPENSE') {
+                monthlyExpense[month] += line.isDebit ? line.amount : -line.amount;
+              }
+            }
+          });
+        });
+
+        setSeriesData([
+          { name: "Pendapatan", data: monthlyRevenue },
+          { name: "Pengeluaran", data: monthlyExpense },
+        ]);
+
+      } catch (err: any) {
+        setError(err.message || 'Failed to fetch financial data for chart');
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchData();
+  }, []);
+
   const options: ApexOptions = {
-    colors: ["#465fff"],
+    colors: ["#22c55e", "#ef4444"], // Green for Revenue, Red for Expense
     chart: {
       fontFamily: "Outfit, sans-serif",
       type: "bar",
@@ -40,18 +92,8 @@ export default function MonthlySalesChart() {
     },
     xaxis: {
       categories: [
-        "Jan",
-        "Feb",
-        "Mar",
-        "Apr",
-        "May",
-        "Jun",
-        "Jul",
-        "Aug",
-        "Sep",
-        "Oct",
-        "Nov",
-        "Dec",
+        "Jan", "Feb", "Mar", "Apr", "May", "Jun",
+        "Jul", "Aug", "Sep", "Oct", "Nov", "Dec",
       ],
       axisBorder: {
         show: false,
@@ -70,6 +112,9 @@ export default function MonthlySalesChart() {
       title: {
         text: undefined,
       },
+      labels: {
+        formatter: (val: number) => new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', notation: 'compact' }).format(val),
+      },
     },
     grid: {
       yaxis: {
@@ -84,19 +129,14 @@ export default function MonthlySalesChart() {
 
     tooltip: {
       x: {
-        show: false,
+        show: true,
       },
       y: {
-        formatter: (val: number) => `${val}`,
+        formatter: (val: number) => new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR' }).format(val),
       },
     },
   };
-  const series = [
-    {
-      name: "Sales",
-      data: [168, 385, 201, 298, 187, 195, 291, 110, 215, 390, 280, 112],
-    },
-  ];
+
   const [isOpen, setIsOpen] = useState(false);
 
   function toggleDropdown() {
@@ -107,11 +147,19 @@ export default function MonthlySalesChart() {
     setIsOpen(false);
   }
 
+  if (loading) {
+    return <div className="overflow-hidden rounded-2xl border border-gray-200 bg-white px-5 pt-5 dark:border-gray-800 dark:bg-white/[0.03] sm:px-6 sm:pt-6">Loading chart data...</div>;
+  }
+
+  if (error) {
+    return <div className="overflow-hidden rounded-2xl border border-gray-200 bg-white px-5 pt-5 dark:border-gray-800 dark:bg-white/[0.03] sm:px-6 sm:pt-6 text-red-500">Error: {error}</div>;
+  }
+
   return (
     <div className="overflow-hidden rounded-2xl border border-gray-200 bg-white px-5 pt-5 dark:border-gray-800 dark:bg-white/[0.03] sm:px-6 sm:pt-6">
       <div className="flex items-center justify-between">
         <h3 className="text-lg font-semibold text-gray-800 dark:text-white/90">
-          Monthly Sales
+          Monthly Financial Overview
         </h3>
 
         <div className="relative inline-block">
@@ -143,7 +191,7 @@ export default function MonthlySalesChart() {
         <div className="-ml-5 min-w-[650px] xl:min-w-full pl-2">
           <ReactApexChart
             options={options}
-            series={series}
+            series={seriesData}
             type="bar"
             height={180}
           />

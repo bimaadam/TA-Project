@@ -1,38 +1,31 @@
-"use client";
-
+"use client"
 import { useEffect, useState } from "react";
-import { Plus, RefreshCw, TrendingDown } from "lucide-react";
-import { accountService } from "@/services/account.service";
+
+import { RefreshCw, TrendingUp, Plus } from "lucide-react";
+import Link from "next/link";
 import { journalService } from "@/services/journal.service";
 import Button from "../ui/button/Button";
-import Link from "next/link";
 
 
-export default function ExpenseTransaction() {
-  const [expenseEntries, setExpenseEntries] = useState<any[]>([]);
-  const [accounts, setAccounts] = useState<any[]>([]);
-  const [loading, setLoading] = useState(false);
+export default function IncomeTransaction() {
+  const [incomeEntries, setIncomeEntries] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  const fetchExpenses = async () => {
+  const fetchIncome = async () => {
+    setLoading(true);
     try {
-      setLoading(true);
-      setError(null);
-      const [entries, accs] = await Promise.all([
-        journalService.getExpenseEntries(),
-        accountService.getAccounts(),
-      ]);
-      setExpenseEntries(entries);
-      setAccounts(accs); // untuk AddExpenseModal
+      const response = await journalService.getRevenueEntries();
+      setIncomeEntries(response);
     } catch (err: any) {
-      setError(err.message || "Failed to fetch expenses");
+      setError(err.message || "Failed to fetch income entries");
     } finally {
       setLoading(false);
     }
   };
 
   useEffect(() => {
-    fetchExpenses();
+    fetchIncome();
   }, []);
 
   const formatCurrency = (amount: number) =>
@@ -42,10 +35,9 @@ export default function ExpenseTransaction() {
       minimumFractionDigits: 0,
     }).format(amount);
 
-  // Hitung total pengeluaran dari debit line
-  const totalExpense = expenseEntries.reduce((sum, entry) => {
-    const expenseLine = entry.lines.find((line: any) => line.isDebit);
-    return sum + (expenseLine?.amount || 0);
+  const totalIncome = incomeEntries.reduce((sum, entry) => {
+    const incomeLine = entry.lines.find((line: any) => !line.isDebit); // credit line
+    return sum + (incomeLine?.amount || 0);
   }, 0);
 
   return (
@@ -53,21 +45,21 @@ export default function ExpenseTransaction() {
       <div className="bg-white rounded-2xl shadow-lg p-6 mb-6 border border-gray-100">
         <div className="flex justify-between items-center">
           <div className="flex items-center">
-            <div className="p-3 bg-red-100 rounded-lg mr-4">
-              <TrendingDown className="w-8 h-8 text-red-600" />
+            <div className="p-3 bg-green-100 rounded-lg mr-4">
+              <TrendingUp className="w-8 h-8 text-green-600" />
             </div>
             <div>
               <h1 className="text-4xl font-bold text-gray-800 mb-2">
-                Expense Transactions
+                Income Transactions
               </h1>
               <p className="text-gray-600">
-                Manage company expenses and operational costs
+                Manage company revenues and other income
               </p>
             </div>
           </div>
           <div className="flex gap-3">
             <Button
-              onClick={fetchExpenses}
+              onClick={fetchIncome}
               disabled={loading}
               className="bg-blue-100 hover:bg-blue-200 text-blue-700 px-4 py-2 rounded-lg flex items-center gap-2"
             >
@@ -75,7 +67,7 @@ export default function ExpenseTransaction() {
               {loading ? "Loading..." : "Refresh"}
             </Button>
             <Link href="/finance/income/tambah">
-              <Button className="bg-gradient-to-r from-red-500 to-red-600 text-white px-6 py-3 rounded-lg flex items-center gap-2">
+              <Button className="bg-gradient-to-r from-green-500 to-green-600 text-white px-6 py-3 rounded-lg flex items-center gap-2">
                 <Plus size={20} />
                 Add Income
               </Button>
@@ -86,17 +78,16 @@ export default function ExpenseTransaction() {
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
         <div className="bg-white rounded-2xl shadow-lg p-6 border border-gray-100">
-          <p className="text-sm font-medium text-gray-600">Total Expense</p>
-          <p className="text-2xl font-bold text-red-600">
-            {formatCurrency(totalExpense)}
+          <p className="text-sm font-medium text-gray-600">Total Income</p>
+          <p className="text-2xl font-bold text-green-600">
+            {formatCurrency(totalIncome)}
           </p>
         </div>
-        {/* Bisa tambah card lain di sini */}
       </div>
 
       <div className="bg-white rounded-2xl shadow-lg border border-gray-100 overflow-hidden">
         <div className="px-6 py-4 border-b border-gray-200">
-          <h2 className="text-xl font-semibold text-gray-900">Expense List</h2>
+          <h2 className="text-xl font-semibold text-gray-900">Income List</h2>
         </div>
         <div className="overflow-x-auto">
           <table className="w-full">
@@ -129,14 +120,14 @@ export default function ExpenseTransaction() {
                     {error}
                   </td>
                 </tr>
-              ) : expenseEntries.length === 0 ? (
+              ) : incomeEntries.length === 0 ? (
                 <tr>
                   <td colSpan={4} className="text-center py-4">
-                    No expense entries found.
+                    No income entries found.
                   </td>
                 </tr>
               ) : (
-                expenseEntries.map((entry: any) => (
+                incomeEntries.map((entry: any) => (
                   <tr key={entry.id} className="hover:bg-gray-50">
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                       {new Date(entry.date).toLocaleDateString("id-ID")}
@@ -144,9 +135,9 @@ export default function ExpenseTransaction() {
                     <td className="px-6 py-4 text-sm text-gray-900 max-w-xs">
                       <div className="truncate">{entry.description}</div>
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-red-600">
+                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-green-600">
                       {formatCurrency(
-                        entry.lines.find((l: any) => l.isDebit)?.amount || 0
+                        entry.lines.find((l: any) => !l.isDebit)?.amount || 0
                       )}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">

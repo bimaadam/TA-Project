@@ -67,6 +67,25 @@ export const journalService = {
     return response.json();
   },
 
+  // Get all journal entries with lines included
+  async getJournalEntriesWithLines(): Promise<JournalEntry[]> {
+    const token = authService.getToken();
+    if (!token) throw new Error('No access token found');
+
+    const response = await fetch(`${API_BASE_URL}/journal-entries/with-lines`, {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`,
+      },
+    });
+
+    if (!response.ok) {
+      throw new Error('Failed to fetch journal entries with lines');
+    }
+    return response.json();
+  },
+
   // Get a single journal entry by ID
   async getJournalEntryById(id: string): Promise<JournalEntry> {
     const token = authService.getToken();
@@ -82,6 +101,44 @@ export const journalService = {
 
     if (!response.ok) {
       throw new Error('Failed to fetch journal entry');
+    }
+    return response.json();
+  },
+
+  // Get all expense-related journal entries
+  async getExpenseEntries(): Promise<JournalEntry[]> {
+    const token = authService.getToken();
+    if (!token) throw new Error('No access token found');
+
+    const response = await fetch(`${API_BASE_URL}/journal-entries/expense`, {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`,
+      },
+    });
+
+    if (!response.ok) {
+      throw new Error('Failed to fetch expense entries');
+    }
+    return response.json();
+  },
+
+  // Get all revenue-related journal entries
+  async getRevenueEntries(): Promise<JournalEntry[]> {
+    const token = authService.getToken();
+    if (!token) throw new Error('No access token found');
+
+    const response = await fetch(`${API_BASE_URL}/journal-entries/revenues`, {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`,
+      },
+    });
+
+    if (!response.ok) {
+      throw new Error('Failed to fetch revenue entries');
     }
     return response.json();
   },

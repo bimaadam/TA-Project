@@ -1,0 +1,52 @@
+/* src/app/print.css */
+
+@media print {
+  /* Hide elements not needed for print */
+  body > div:not(.print-area) { /* Adjust this selector to target your main app wrapper */
+    display: none; 
+  }
+
+  /* Ensure the content to be printed is visible */
+  .print-area {
+    display: block !important;
+    width: 100%;
+    margin: 0;
+    padding: 0;
+    box-shadow: none;
+    border: none;
+  }
+
+  /* Hide specific buttons/elements within the print area */
+  .print-hide {
+    display: none !important;
+  }
+
+  /* Adjust text and background colors for print */
+  body {
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+    background-color: #fff !important;
+    color: #000 !important;
+  }
+
+  /* Ensure images are printed */
+  img {
+    print-color-adjust: exact;
+  }
+
+  /* Adjust table styles for print */
+  table {
+    width: 100%;
+    border-collapse: collapse;
+  }
+
+  th, td {
+    border: 1px solid #ccc;
+    padding: 8px;
+  }
+
+  /* Handle page breaks */
+  .page-break {
+    page-break-after: always;
+  }
+}

@@ -1,12 +1,14 @@
 "use client";
 
-import React, { useEffect, useState } from 'react';
-import Image from 'next/image';
-import { useRouter } from 'next/navigation';
-import { invoiceService, Invoice } from '@/services/invoice.service';
-import { clientService, Client } from '@/services/client.service';
-import { projectService, Project } from '@/services/project.service';
-import Button from '@/components/ui/button/Button';
+import React, { useEffect, useState, useRef } from "react";
+import Image from "next/image";
+import { useRouter } from "next/navigation";
+import { invoiceService, Invoice } from "@/services/invoice.service";
+import { clientService, Client } from "@/services/client.service";
+import { projectService, Project } from "@/services/project.service";
+import Button from "@/components/ui/button/Button";
+import jsPDF from "jspdf";
+import html2canvas from "html2canvas";
 
 interface PreviewInvoiceProps {
   invoiceId: string;
@@ -19,6 +21,9 @@ export default function PreviewInvoice({ invoiceId }: PreviewInvoiceProps) {
   const [project, setProject] = useState<Project | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
+  const [isExporting, setIsExporting] = useState(false);
+
+  const invoiceRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -27,16 +32,16 @@ export default function PreviewInvoice({ invoiceId }: PreviewInvoiceProps) {
         const invoiceData = await invoiceService.getInvoiceById(invoiceId);
         setInvoice(invoiceData);
 
-        // Fetch related client and project data
         const [clientData, projectData] = await Promise.all([
           clientService.getClientById(invoiceData.clientId),
-          invoiceData.projectId ? projectService.getProjectById(invoiceData.projectId) : Promise.resolve(null),
+          invoiceData.projectId
+            ? projectService.getProjectById(invoiceData.projectId)
+            : Promise.resolve(null),
         ]);
         setClient(clientData);
         setProject(projectData);
-
       } catch (err: any) {
-        setError(err.message || 'Failed to fetch invoice details');
+        setError(err.message || "Failed to fetch invoice details");
       } finally {
         setLoading(false);
       }
@@ -45,173 +50,307 @@ export default function PreviewInvoice({ invoiceId }: PreviewInvoiceProps) {
     fetchData();
   }, [invoiceId]);
 
+  // Enhanced PDF Export with better color handling
+  const exportPDF = async () => {
+    if (!invoiceRef.current) return;
+    
+    setIsExporting(true);
+    try {
+      const canvas = await html2canvas(invoiceRef.current, {
+        scale: 2,
+        useCORS: true,
+        allowTaint: true,
+        backgroundColor: '#ffffff',
+        onclone: (clonedDoc) => {
+          // Force all elements to use standard colors
+          const allElements = clonedDoc.querySelectorAll('*');
+          allElements.forEach((element: any) => {
+            const computedStyle = window.getComputedStyle(element);
+            
+            // Replace any modern color formats with standard ones
+            if (computedStyle.color && (computedStyle.color.includes('oklab') || computedStyle.color.includes('oklch'))) {
+              element.style.color = '#000000';
+            }
+            if (computedStyle.backgroundColor && (computedStyle.backgroundColor.includes('oklab') || computedStyle.backgroundColor.includes('oklch'))) {
+              element.style.backgroundColor = '#ffffff';
+            }
+            if (computedStyle.borderColor && (computedStyle.borderColor.includes('oklab') || computedStyle.borderColor.includes('oklch'))) {
+              element.style.borderColor = '#e5e7eb';
+            }
+          });
+        },
+      });
+
+      const imgData = canvas.toDataURL('image/png');
+      const pdf = new jsPDF('p', 'mm', 'a4');
+      
+      const imgProps = pdf.getImageProperties(imgData);
+      const pdfWidth = pdf.internal.pageSize.getWidth();
+      const pdfHeight = (imgProps.height * pdfWidth) / imgProps.width;
+      
+      // Handle multiple pages if content is too long
+      if (pdfHeight > pdf.internal.pageSize.getHeight()) {
+        const pages = Math.ceil(pdfHeight / pdf.internal.pageSize.getHeight());
+        for (let i = 0; i < pages; i++) {
+          if (i > 0) pdf.addPage();
+          const yOffset = -i * pdf.internal.pageSize.getHeight();
+          pdf.addImage(imgData, 'PNG', 0, yOffset, pdfWidth, pdfHeight);
+        }
+      } else {
+        pdf.addImage(imgData, 'PNG', 0, 0, pdfWidth, pdfHeight);
+      }
+
+      pdf.save(`Invoice-${invoice?.number || 'Unknown'}.pdf`);
+    } catch (error) {
+      console.error('Error exporting PDF:', error);
+      alert('Failed to export PDF. Please try again.');
+    } finally {
+      setIsExporting(false);
+    }
+  };
+
+  const formatCurrency = (amount: number) => {
+    return new Intl.NumberFormat('id-ID', { 
+      style: 'currency', 
+      currency: 'IDR',
+      minimumFractionDigits: 0,
+      maximumFractionDigits: 0
+    }).format(amount);
+  };
+
   if (loading) {
-    return <div>Loading invoice details...</div>;
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="text-center">
+          <div className="w-8 h-8 border-4 border-blue-500 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+          <p className="text-gray-600">Loading invoice details...</p>
+        </div>
+      </div>
+    );
   }
 
   if (error) {
-    return <div className="text-red-500">Error: {error}</div>;
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="text-center p-6 bg-red-50 border border-red-200 rounded-lg">
+          <p className="text-red-600 font-medium">Error: {error}</p>
+          <button 
+            onClick={() => router.back()}
+            className="mt-4 px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700 transition-colors"
+          >
+            Go Back
+          </button>
+        </div>
+      </div>
+    );
   }
 
-  if (!invoice) {
-    return <div>Invoice not found.</div>;
+  if (!invoice || !client) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="text-center p-6 bg-gray-50 border border-gray-200 rounded-lg">
+          <p className="text-gray-600">Invoice or client data not found.</p>
+          <button 
+            onClick={() => router.back()}
+            className="mt-4 px-4 py-2 bg-gray-600 text-white rounded hover:bg-gray-700 transition-colors"
+          >
+            Go Back
+          </button>
+        </div>
+      </div>
+    );
   }
 
-  const subtotal = invoice.invoiceItems.reduce((sum, item) => sum + (item.quantity * item.unitPrice), 0);
-  const totalAfterDiscount = subtotal - invoice.discount;
-  const taxAmount = totalAfterDiscount * invoice.taxRate;
+  const subtotal = invoice.invoiceItems.reduce(
+    (sum, item) => sum + item.quantity * item.unitPrice,
+    0
+  );
+  const totalAfterDiscount = subtotal - (invoice.discount || 0);
+  const taxAmount = totalAfterDiscount * (invoice.taxRate || 0);
   const finalTotal = totalAfterDiscount + taxAmount;
 
   return (
-    <div className="max-w-[85rem] px-4 sm:px-6 lg:px-8 mx-auto my-4 sm:my-10">
-      <div className="sm:w-11/12 lg:w-3/4 mx-auto">
-        {/* Buttons */}
-        <div className="mt-6 flex justify-end gap-x-3 mb-4">
-          <Button onClick={() => router.back()} className="bg-gray-300 hover:bg-gray-400 text-black">Back</Button>
-          {/* You can add Print/PDF buttons here later */}
+    <div className="max-w-6xl mx-auto px-4 py-8">
+      {/* Action Buttons */}
+      <div className="flex justify-between items-center mb-8">
+        <h1 className="text-2xl font-bold text-gray-800">Invoice Preview</h1>
+        <div className="flex gap-3">
+          <Button
+            onClick={() => router.back()}
+            className="px-6 py-2 bg-gray-200 hover:bg-gray-300 text-gray-800 border border-gray-300 rounded-lg transition-colors"
+          >
+            Back
+          </Button>
+          <Button
+            onClick={exportPDF}
+            disabled={isExporting}
+            className="px-6 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            {isExporting ? 'Exporting...' : 'Export PDF'}
+          </Button>
+        </div>
+      </div>
+
+      {/* Invoice Container */}
+      <div 
+        ref={invoiceRef}
+        className="bg-white border border-gray-200 rounded-lg shadow-lg p-8"
+        style={{ backgroundColor: '#ffffff' }} // Explicit background for PDF
+      >
+        {/* Header */}
+        <div className="flex justify-between items-start mb-8">
+          <div>
+            <Image 
+              src="/images/logo/AJT.png" 
+              alt="Company Logo" 
+              width={120} 
+              height={120}
+              className="mb-4"
+            />
+            <h1 className="text-xl font-bold text-red-600 mb-2">
+              CV Abyzain Jaya Teknika
+            </h1>
+            <address className="text-gray-600 not-italic leading-relaxed">
+              No. 45<br />
+              Jl. Raya<br />
+              Cibarusah, Bekasi<br />
+              Indonesia<br />
+            </address>
+          </div>
+          <div className="text-right">
+            <h2 className="text-3xl font-bold text-gray-800 mb-2">
+              Invoice #{invoice.number}
+            </h2>
+            <p className="text-gray-500 text-sm">ID: {invoice.id}</p>
+          </div>
         </div>
 
-        {/* Card */}
-        <div className="flex flex-col p-4 sm:p-10 bg-auto shadow-sm shadow-gray-500 dark:shadow-white rounded-4xl">
-          {/* Header Grid */}
-          <div className="flex justify-between">
-            <div>
-              <Image src="/images/logo/AJT.png" alt="Company Logo" width={100} height={100} />
-              <h1 className="mt-2 text-lg md:text-xl font-semibold text-red-600 dark:text-white">CV Abyzain Jaya Teknika</h1>
-              <address className="mt-2 not-italic text-gray-800 dark:text-neutral-200">
-                No. 45<br />
-                Jl. Raya<br />
-                Cibarusah, Bekasi<br />
-                Indonesia<br />
-              </address>
-            </div>
-            <div className="text-end">
-              <h2 className="text-2xl md:text-3xl font-semibold text-gray-800 dark:text-neutral-200">Invoice #{invoice.number}</h2>
-              <span className="mt-1 block text-gray-500 dark:text-neutral-500">{invoice.id}</span>
+        {/* Client & Invoice Details */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-8">
+          <div>
+            <h3 className="text-lg font-semibold text-gray-800 mb-2">Bill To:</h3>
+            <div className="text-gray-600">
+              <p className="font-medium text-gray-800">{client.fullName}</p>
+              {client.email && <p>{client.email}</p>}
+              {client.phone && <p>{client.phone}</p>}
             </div>
           </div>
-
-          {/* Client & Dates Grid */}
-          <div className="mt-8 grid sm:grid-cols-2 gap-3">
-            <div>
-              <h3 className="text-lg font-semibold text-gray-800 dark:text-neutral-200">Bill to:</h3>
-              <h3 className="text-lg font-semibold text-gray-800 dark:text-neutral-200">{client?.fullName || 'N/A'}</h3>
-              {/* You might want to add client address here if available */}
+          <div className="space-y-2">
+            <div className="flex justify-between">
+              <span className="font-medium text-gray-800">Invoice Date:</span>
+              <span className="text-gray-600">
+                {new Date(invoice.issuedDate).toLocaleDateString('id-ID')}
+              </span>
             </div>
-            <div className="sm:text-end space-y-2">
-              <div className="grid grid-cols-2 sm:grid-cols-1 gap-3 sm:gap-2">
-                <dl className="grid sm:grid-cols-5 gap-x-3">
-                  <dt className="col-span-3 font-semibold text-gray-800 dark:text-neutral-200">Invoice Date:</dt>
-                  <dd className="col-span-2 text-gray-500 dark:text-neutral-500">{new Date(invoice.issuedDate).toLocaleDateString()}</dd>
-                </dl>
-                <dl className="grid sm:grid-cols-5 gap-x-3">
-                  <dt className="col-span-3 font-semibold text-gray-800 dark:text-neutral-200">Due Date:</dt>
-                  <dd className="col-span-2 text-gray-500 dark:text-neutral-500">{new Date(invoice.dueDate).toLocaleDateString()}</dd>
-                </dl>
-                {invoice.project && (
-                  <dl className="grid sm:grid-cols-5 gap-x-3">
-                    <dt className="col-span-3 font-semibold text-gray-800 dark:text-neutral-200">Project:</dt>
-                    <dd className="col-span-2 text-gray-500 dark:text-neutral-500">{project?.name || 'N/A'}</dd>
-                  </dl>
-                )}
-                <dl className="grid sm:grid-cols-5 gap-x-3">
-                  <dt className="col-span-3 font-semibold text-gray-800 dark:text-neutral-200">Status:</dt>
-                  <dd className="col-span-2 text-gray-500 dark:text-neutral-500">{invoice.status}</dd>
-                </dl>
+            <div className="flex justify-between">
+              <span className="font-medium text-gray-800">Due Date:</span>
+              <span className="text-gray-600">
+                {new Date(invoice.dueDate).toLocaleDateString('id-ID')}
+              </span>
+            </div>
+            {project && (
+              <div className="flex justify-between">
+                <span className="font-medium text-gray-800">Project:</span>
+                <span className="text-gray-600">{project.name}</span>
               </div>
+            )}
+            <div className="flex justify-between">
+              <span className="font-medium text-gray-800">Status:</span>
+              <span className={`px-2 py-1 rounded text-xs font-medium ${
+                invoice.status === 'paid' ? 'bg-green-100 text-green-800' :
+                invoice.status === 'pending' ? 'bg-yellow-100 text-yellow-800' :
+                'bg-red-100 text-red-800'
+              }`}>
+                {invoice.status?.toUpperCase()}
+              </span>
             </div>
           </div>
+        </div>
 
-          {/* Invoice Items Table */}
-          <div className="mt-6">
-            <div className="border border-gray-200 p-4 rounded-lg space-y-4 dark:border-neutral-700">
-              <div className="hidden sm:grid sm:grid-cols-5">
-                <div className="sm:col-span-2 text-xs font-medium text-gray-500 uppercase dark:text-neutral-500">Item</div>
-                <div className="text-start text-xs font-medium text-gray-500 uppercase dark:text-neutral-500">Qty</div>
-                <div className="text-start text-xs font-medium text-gray-500 uppercase dark:text-neutral-500">Unit Price</div>
-                <div className="text-end text-xs font-medium text-gray-500 uppercase dark:text-neutral-500">Amount</div>
-              </div>
-              <div className="hidden sm:block border-b border-gray-200 dark:border-neutral-700"></div>
-
-              {invoice.invoiceItems.map((item, index) => (
-                <div key={item.id || index} className="grid grid-cols-3 sm:grid-cols-5 gap-2">
-                  <div className="col-span-full sm:col-span-2">
-                    <h5 className="sm:hidden text-xs font-medium text-gray-500 uppercase dark:text-neutral-500">Item</h5>
-                    <p className="font-medium text-gray-800 dark:text-neutral-200">{item.description}</p>
-                  </div>
-                  <div>
-                    <h5 className="sm:hidden text-xs font-medium text-gray-500 uppercase dark:text-neutral-500">Qty</h5>
-                    <p className="text-gray-800 dark:text-neutral-200">{item.quantity}</p>
-                  </div>
-                  <div>
-                    <h5 className="sm:hidden text-xs font-medium text-gray-500 uppercase dark:text-neutral-500">Unit Price</h5>
-                    <p className="text-gray-800 dark:text-neutral-200">{new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR' }).format(item.unitPrice)}</p>
-                  </div>
-                  <div>
-                    <h5 className="sm:hidden text-xs font-medium text-gray-500 uppercase dark:text-neutral-500">Amount</h5>
-                    <p className="sm:text-end text-gray-800 dark:text-neutral-200">{new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR' }).format(item.total || (item.quantity * item.unitPrice))}</p>
-                  </div>
+        {/* Invoice Items Table */}
+        <div className="mb-8">
+          <div className="border border-gray-200 rounded-lg overflow-hidden">
+            {/* Table Header */}
+            <div className="bg-gray-50 grid grid-cols-12 gap-4 p-4 font-medium text-gray-700">
+              <div className="col-span-6">Description</div>
+              <div className="col-span-2 text-center">Quantity</div>
+              <div className="col-span-2 text-center">Unit Price</div>
+              <div className="col-span-2 text-right">Amount</div>
+            </div>
+            
+            {/* Table Body */}
+            {invoice.invoiceItems.map((item, index) => (
+              <div key={item.id || index} className="grid grid-cols-12 gap-4 p-4 border-t border-gray-200">
+                <div className="col-span-6">
+                  <p className="font-medium text-gray-800">{item.description}</p>
                 </div>
-              ))}
-            </div>
-          </div>
-
-          {/* Totals */}
-          <div className="mt-8 flex sm:justify-end">
-            <div className="w-full max-w-2xl sm:text-end space-y-2">
-              <div className="grid grid-cols-2 sm:grid-cols-1 gap-3 sm:gap-2">
-                <dl className="grid sm:grid-cols-5 gap-x-3">
-                  <dt className="col-span-3 font-semibold text-gray-800 dark:text-neutral-200">Subtotal:</dt>
-                  <dd className="col-span-2 text-gray-500 dark:text-neutral-500">{new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR' }).format(subtotal)}</dd>
-                </dl>
-                <dl className="grid sm:grid-cols-5 gap-x-3">
-                  <dt className="col-span-3 font-semibold text-gray-800 dark:text-neutral-200">Discount:</dt>
-                  <dd className="col-span-2 text-gray-500 dark:text-neutral-500">{new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR' }).format(invoice.discount)}</dd>
-                </dl>
-                <dl className="grid sm:grid-cols-5 gap-x-3">
-                  <dt className="col-span-3 font-semibold text-gray-800 dark:text-neutral-200">Tax ({invoice.taxRate * 100}%):</dt>
-                  <dd className="col-span-2 text-gray-500 dark:text-neutral-500">{new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR' }).format(taxAmount)}</dd>
-                </dl>
-                <dl className="grid sm:grid-cols-5 gap-x-3">
-                  <dt className="col-span-3 font-semibold text-gray-800 dark:text-neutral-200">Total Amount:</dt>
-                  <dd className="col-span-2 text-gray-500 dark:text-neutral-500">{new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR' }).format(finalTotal)}</dd>
-                </dl>
-                <dl className="grid sm:grid-cols-5 gap-x-3">
-                  <dt className="col-span-3 font-semibold text-gray-800 dark:text-neutral-200">Amount Paid:</dt>
-                  <dd className="col-span-2 text-gray-500 dark:text-neutral-500">{new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR' }).format(invoice.amount)}</dd>
-                </dl>
-                <dl className="grid sm:grid-cols-5 gap-x-3">
-                  <dt className="col-span-3 font-semibold text-gray-800 dark:text-neutral-200">Due Balance:</dt>
-                  <dd className="col-span-2 text-gray-500 dark:text-neutral-500">{new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR' }).format(invoice.totalAmount - invoice.amount)}</dd>
-                </dl>
+                <div className="col-span-2 text-center text-gray-600">
+                  {item.quantity}
+                </div>
+                <div className="col-span-2 text-center text-gray-600">
+                  {formatCurrency(item.unitPrice)}
+                </div>
+                <div className="col-span-2 text-right text-gray-800 font-medium">
+                  {formatCurrency(item.quantity * item.unitPrice)}
+                </div>
               </div>
-            </div>
+            ))}
           </div>
-
-          <div className="mt-8 sm:mt-12">
-            <h4 className="text-lg font-semibold text-gray-800 dark:text-neutral-200">Thank you!</h4>
-            <p className="text-gray-500 dark:text-neutral-500">If you have any questions concerning this invoice, use the following contact information:</p>
-            <div className="mt-2">
-              <p className="block text-sm font-medium text-gray-800 dark:text-neutral-200">abyzainjayateknika.my.id</p>
-              <p className="block text-sm font-medium text-gray-800 dark:text-neutral-200">+62 896-63-164-143</p>
-            </div>
-          </div>
-
-          <p className="mt-5 text-sm text-gray-500 dark:text-neutral-500">
-            © {new Date().getFullYear()} Abyzain Jaya Teknika
-          </p>
         </div>
 
-        {/* Buttons */}
-        <div className="mt-6 flex justify-end gap-x-3">
-          <a className="py-2 px-3 inline-flex items-center gap-x-2 text-sm font-medium rounded-lg border border-gray-200 bg-white text-gray-800 shadow-2xs hover:bg-gray-50 disabled:opacity-50 disabled:pointer-events-none focus:outline-hidden focus:bg-gray-50 dark:bg-transparent dark:border-neutral-700 dark:text-neutral-300 dark:hover:bg-neutral-800 dark:focus:bg-neutral-800" href="#">
-            <svg className="shrink-0 size-4" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" /><polyline points="7 10 12 15 17 10" /><line x1="12" x2="12" y1="15" y2="3" /></svg>
-            Invoice PDF
-          </a>
-          <a className="py-2 px-3 inline-flex items-center gap-x-2 text-sm font-medium rounded-lg border border-transparent bg-blue-600 text-white hover:bg-blue-700 focus:outline-hidden focus:bg-blue-700 disabled:opacity-50 disabled:pointer-events-none" href="#">
-            <svg className="shrink-0 size-4" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="6 9 6 2 18 2 18 9" /><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2" /><rect width="12" height="8" x="6" y="14" /></svg>
-            Print
-          </a>
+        {/* Totals Section */}
+        <div className="flex justify-end mb-8">
+          <div className="w-full max-w-md space-y-2">
+            <div className="flex justify-between py-1">
+              <span className="text-gray-600">Subtotal:</span>
+              <span className="text-gray-800 font-medium">{formatCurrency(subtotal)}</span>
+            </div>
+            {invoice.discount > 0 && (
+              <div className="flex justify-between py-1">
+                <span className="text-gray-600">Discount:</span>
+                <span className="text-gray-800 font-medium">-{formatCurrency(invoice.discount)}</span>
+              </div>
+            )}
+            {invoice.taxRate > 0 && (
+              <div className="flex justify-between py-1">
+                <span className="text-gray-600">Tax ({(invoice.taxRate * 100).toFixed(0)}%):</span>
+                <span className="text-gray-800 font-medium">{formatCurrency(taxAmount)}</span>
+              </div>
+            )}
+            <div className="border-t border-gray-200 pt-2">
+              <div className="flex justify-between py-1">
+                <span className="text-lg font-semibold text-gray-800">Total:</span>
+                <span className="text-lg font-bold text-gray-800">{formatCurrency(finalTotal)}</span>
+              </div>
+            </div>
+            {invoice.amount > 0 && (
+              <>
+                <div className="flex justify-between py-1">
+                  <span className="text-gray-600">Amount Paid:</span>
+                  <span className="text-green-600 font-medium">{formatCurrency(invoice.amount)}</span>
+                </div>
+                <div className="flex justify-between py-1">
+                  <span className="text-gray-600">Due Balance:</span>
+                  <span className="text-red-600 font-medium">{formatCurrency(finalTotal - invoice.amount)}</span>
+                </div>
+              </>
+            )}
+          </div>
+        </div>
+
+        {/* Footer */}
+        <div className="border-t border-gray-200 pt-6">
+          <h4 className="text-lg font-semibold text-gray-800 mb-2">Thank You!</h4>
+          <p className="text-gray-600 mb-4">
+            If you have any questions concerning this invoice, please contact us:
+          </p>
+          <div className="text-gray-600 space-y-1">
+            <p><strong>Website:</strong> abyzainjayateknika.my.id</p>
+            <p><strong>Phone:</strong> +62 896-63-164-143</p>
+          </div>
+          <p className="text-gray-500 text-sm mt-6">
+            © {new Date().getFullYear()} Abyzain Jaya Teknika. All rights reserved.
+          </p>
         </div>
       </div>
     </div>
