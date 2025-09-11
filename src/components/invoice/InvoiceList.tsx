@@ -4,8 +4,8 @@ import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
 import Button from '@/components/ui/button/Button';
 import { invoiceService, Invoice } from '@/services/invoice.service';
-import { clientService, Client } from '@/services/client.service';
-import { projectService, Project } from '@/services/project.service';
+import { clientService } from '@/services/client.service';
+import { projectService } from '@/services/project.service';
 import Badge from "@/components/ui/badge/Badge";
 
 export default function InvoiceList() {
@@ -33,12 +33,16 @@ export default function InvoiceList() {
       setProjects(projectMap);
 
       setInvoices(invoiceResponse);
-    } catch (err: any) {
-      setError(err.message || 'Failed to fetch data');
+    } catch (err: unknown) {
+      if (err instanceof Error) {
+        setError(err.message)
+      } else {
+        setError("failed to fetch income data")
+      } 
     } finally {
-      setLoading(false);
+      setLoading(false)
     }
-  };
+  }
 
   useEffect(() => {
     fetchData();
@@ -49,9 +53,11 @@ export default function InvoiceList() {
       try {
         await invoiceService.deleteInvoice(invoiceId);
         fetchData(); // Refresh list after delete
-      } catch (err: any) {
-        alert(`Error: ${err.message}`);
-      }
+      } catch (err: unknown) {
+        if (err instanceof Error) {
+           alert(`Error: ${err.message}`);
+        }
+      } 
     }
   };
 

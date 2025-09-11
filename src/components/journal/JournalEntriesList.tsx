@@ -15,7 +15,8 @@ export default function JournalEntriesList() {
     try {
       const response = await journalService.getJournalEntries();
       setEntries(response);
-    } catch (err: any) {
+    } catch (err: unknown) {
+      if (err instanceof Error)
       setError(err.message || 'Failed to fetch journal entries');
     } finally {
       setLoading(false);

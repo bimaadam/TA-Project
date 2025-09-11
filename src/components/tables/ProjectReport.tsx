@@ -19,7 +19,8 @@ export default function ProjectReportTable() {
     try {
       const response = await reportService.getProjectSummary(startDate, endDate);
       setProjects(response);
-    } catch (err: any) {
+    } catch (err: unknown) {
+      if (err instanceof Error)
       setError(err.message || 'Failed to fetch project report data');
     } finally {
       setLoading(false);

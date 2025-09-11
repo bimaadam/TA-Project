@@ -42,7 +42,8 @@ export default function ViewJournalEntry({ entryId }: ViewJournalEntryProps) {
         setProjects(projectMap);
 
         setEntry(entryData);
-      } catch (err: any) {
+      } catch (err: unknown) {
+        if (err instanceof Error)
         setError(err.message || 'Failed to fetch journal entry details');
       } finally {
         setLoading(false);

@@ -16,7 +16,8 @@ export default function BalanceSheet() {
     try {
       const data = await reportService.getBalanceSheet(asOfDate);
       setReportData(data);
-    } catch (err: any) {
+    } catch (err: unknown) {
+      if (err instanceof Error)
       setError(err.message || 'Failed to generate report');
     } finally {
       setLoading(false);

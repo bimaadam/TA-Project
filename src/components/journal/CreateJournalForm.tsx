@@ -33,12 +33,12 @@ export default function CreateJournalForm() {
       setAccounts(accs);
       setProjects(projs);
       setInvoices(invs); // Set invoices
-    }).catch(err => setError('Failed to load initial data'));
+    }).catch(() => setError('Failed to load initial data'));
   }, []);
 
-  const handleLineChange = (index: number, field: string, value: any) => {
+  const handleLineChange = (index: number, field: string, value: unknown) => {
     const newLines = [...lines];
-    (newLines[index] as any)[field] = value;
+    (newLines[index] as unknown)[field] = value;
     setLines(newLines);
   };
 
@@ -79,7 +79,8 @@ export default function CreateJournalForm() {
       await journalService.createJournalEntry(payload);
       alert('Journal Entry created successfully!');
       router.push('/finance/journal-entries'); // Redirect to journal list page
-    } catch (err: any) {
+    } catch (err: unknown) {
+      if (err instanceof Error)
       setError(err.message || 'Failed to create journal entry');
     } finally {
       setLoading(false);

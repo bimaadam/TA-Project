@@ -7,14 +7,39 @@ import { journalService } from "@/services/journal.service";
 import Button from "../ui/button/Button";
 import Link from "next/link";
 
+// Type definitions
+interface User {
+  fullName: string;
+}
+
+interface JournalLine {
+  id: string;
+  amount: number;
+  isDebit: boolean;
+  accountId: string;
+}
+
+interface ExpenseEntry {
+  id: string;
+  date: string;
+  description: string;
+  lines: JournalLine[];
+  recordedByUser: User;
+}
+
+interface Account {
+  id: string;
+  name: string;
+  // Add other account properties as needed
+}
 
 export default function ExpenseTransaction() {
-  const [expenseEntries, setExpenseEntries] = useState<any[]>([]);
-  const [accounts, setAccounts] = useState<any[]>([]);
-  const [loading, setLoading] = useState(false);
+  const [expenseEntries, setExpenseEntries] = useState<ExpenseEntry[]>([]);
+  const [, setAccounts] = useState<Account[]>([]);
+  const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
 
-  const fetchExpenses = async () => {
+  const fetchExpenses = async (): Promise<void> => {
     try {
       setLoading(true);
       setError(null);
@@ -22,10 +47,11 @@ export default function ExpenseTransaction() {
         journalService.getExpenseEntries(),
         accountService.getAccounts(),
       ]);
-      setExpenseEntries(entries);
-      setAccounts(accs); // untuk AddExpenseModal
-    } catch (err: any) {
-      setError(err.message || "Failed to fetch expenses");
+      setExpenseEntries(entries as unknown as ExpenseEntry[]);
+      setAccounts(accs as Account[]); // untuk AddExpenseModal
+    } catch (err) {
+      const errorMessage = err instanceof Error ? err.message : "Failed to fetch expenses";
+      setError(errorMessage);
     } finally {
       setLoading(false);
     }
@@ -35,7 +61,7 @@ export default function ExpenseTransaction() {
     fetchExpenses();
   }, []);
 
-  const formatCurrency = (amount: number) =>
+  const formatCurrency = (amount: number): string =>
     new Intl.NumberFormat("id-ID", {
       style: "currency",
       currency: "IDR",
@@ -44,7 +70,7 @@ export default function ExpenseTransaction() {
 
   // Hitung total pengeluaran dari debit line
   const totalExpense = expenseEntries.reduce((sum, entry) => {
-    const expenseLine = entry.lines.find((line: any) => line.isDebit);
+    const expenseLine = entry.lines.find((line: JournalLine) => line.isDebit);
     return sum + (expenseLine?.amount || 0);
   }, 0);
 
@@ -136,7 +162,7 @@ export default function ExpenseTransaction() {
                   </td>
                 </tr>
               ) : (
-                expenseEntries.map((entry: any) => (
+                expenseEntries.map((entry: ExpenseEntry) => (
                   <tr key={entry.id} className="hover:bg-gray-50">
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                       {new Date(entry.date).toLocaleDateString("id-ID")}
@@ -146,7 +172,7 @@ export default function ExpenseTransaction() {
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-red-600">
                       {formatCurrency(
-                        entry.lines.find((l: any) => l.isDebit)?.amount || 0
+                        entry.lines.find((l: JournalLine) => l.isDebit)?.amount || 0
                       )}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">

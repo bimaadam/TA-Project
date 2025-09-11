@@ -3,7 +3,7 @@ import React, { ReactNode } from "react";
 interface ButtonProps {
   children: ReactNode;
   size?: "sm" | "md";
-  variant?: "primary" | "outline";
+  variant?: "primary" | "outline" | "danger";
   startIcon?: ReactNode;
   endIcon?: ReactNode;
   onClick?: () => void;

@@ -2,8 +2,8 @@
 import React, { useEffect, useState } from "react";
 import { ApexOptions } from "apexcharts";
 import dynamic from "next/dynamic";
-import { journalService, JournalEntry } from '@/services/journal.service';
-import { accountService, Account } from '@/services/account.service';
+import { journalService } from '@/services/journal.service';
+import { accountService } from '@/services/account.service';
 
 // Dynamically import the ReactApexChart component
 const ReactApexChart = dynamic(() => import("react-apexcharts"), {
@@ -17,8 +17,8 @@ export default function FinancialTrendChart() {
   }[]>([
     { name: "Laba Bersih", data: [] },
   ]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  const [, setLoading] = useState(true);
+  const [, setError] = useState<string | null>(null);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -53,11 +53,16 @@ export default function FinancialTrendChart() {
           { name: "Laba Bersih", data: monthlyNetProfit },
         ]);
 
-      } catch (err: any) {
-        setError(err.message || 'Failed to fetch financial data for trend chart');
-      } finally {
-        setLoading(false);
+      } catch (err: unknown) {
+        if (err instanceof Error) {
+          setError(err.message)
+        } else {
+          setError("Failed to fetch financial data for trend chart")
+        }
       }
+        finally {
+          setLoading (false)
+        }
     };
     fetchData();
   }, []);

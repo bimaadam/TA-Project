@@ -20,7 +20,7 @@ export default function EditProductForm({ productId }: EditProductFormProps) {
       .then(product => {
         setFormData(product);
       })
-      .catch(err => setError('Failed to load product data'))
+      .catch(() => setError('Failed to load product data'))
       .finally(() => setLoading(false));
   }, [productId]);
 
@@ -39,7 +39,8 @@ export default function EditProductForm({ productId }: EditProductFormProps) {
       await productService.updateProduct(productId, formData);
       alert('Product updated successfully!');
       router.push('/master-data-produk'); // Redirect to product list page
-    } catch (err: any) {
+    } catch (err: unknown) {
+      if (err instanceof Error)
       setError(err.message || 'Failed to update product');
     } finally {
       setLoading(false);

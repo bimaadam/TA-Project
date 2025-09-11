@@ -27,7 +27,7 @@ export default function EditProjectForm({ projectId }: EditProjectFormProps) {
         };
         setFormData(formattedProject);
       })
-      .catch(err => setError('Failed to load project data'))
+      .catch(() => setError('Failed to load project data'))
       .finally(() => setLoading(false));
   }, [projectId]);
 
@@ -52,7 +52,8 @@ export default function EditProjectForm({ projectId }: EditProjectFormProps) {
       await projectService.updateProject(projectId, payload);
       alert('Project updated successfully!');
       router.push('/projects'); // Redirect to the project list page
-    } catch (err: any) {
+    } catch (err: unknown) {
+      if (err instanceof Error)
       setError(err.message || 'Failed to update project');
     } finally {
       setLoading(false);

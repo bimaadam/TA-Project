@@ -28,7 +28,7 @@ export default function CreateExpenseForm() {
     ]).then(([accs, projs]) => {
       setAccounts(accs);
       setProjects(projs);
-    }).catch(err => setError('Failed to load initial data'));
+    }).catch(() => setError('Failed to load initial data'));
   }, []);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
@@ -62,8 +62,12 @@ export default function CreateExpenseForm() {
       await journalService.createJournalEntry(payload);
       alert('Expense recorded successfully!');
       router.push('/finance/expense'); // Redirect to expense list page
-    } catch (err: any) {
-      setError(err.message || 'Failed to record expense');
+    } catch (err: unknown) {
+      if (err instanceof Error) {
+        setError(err.message);
+      } else {
+        setError('Failed to record expense');
+      }
     } finally {
       setLoading(false);
     }

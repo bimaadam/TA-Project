@@ -5,8 +5,8 @@ import { MoreDotIcon } from "@/icons";
 import { DropdownItem } from "../ui/dropdown/DropdownItem";
 import { useEffect, useState } from "react";
 import { Dropdown } from "../ui/dropdown/Dropdown";
-import { journalService, JournalEntry } from '@/services/journal.service';
-import { accountService, Account } from '@/services/account.service';
+import { journalService } from '@/services/journal.service';
+import { accountService } from '@/services/account.service';
 
 // Dynamically import the ReactApexChart component
 const ReactApexChart = dynamic(() => import("react-apexcharts"), {
@@ -55,12 +55,16 @@ export default function MonthlyFinancialChart() {
           { name: "Pengeluaran", data: monthlyExpense },
         ]);
 
-      } catch (err: any) {
-        setError(err.message || 'Failed to fetch financial data for chart');
-      } finally {
-        setLoading(false);
+      } catch (err: unknown) {
+      if (err instanceof Error) {
+        setError(err.message);
+      } else {
+        setError('Failed to fetch financial data for chart');
       }
-    };
+    } finally {
+      setLoading(false);
+    }
+  };
     fetchData();
   }, []);
 
@@ -164,7 +168,7 @@ export default function MonthlyFinancialChart() {
 
         <div className="relative inline-block">
           <button onClick={toggleDropdown} className="dropdown-toggle">
-            <MoreDotIcon className="text-gray-400 hover:text-gray-700 dark:hover:text-gray-300" />
+            <MoreDotIcon  />
           </button>
           <Dropdown
             isOpen={isOpen}

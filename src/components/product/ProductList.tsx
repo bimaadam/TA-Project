@@ -15,7 +15,8 @@ export default function ProductList() {
     try {
       const response = await productService.getProducts();
       setProducts(response);
-    } catch (err: any) {
+    } catch (err: unknown) {
+      if (err instanceof Error)
       setError(err.message || 'Failed to fetch products');
     } finally {
       setLoading(false);
@@ -31,7 +32,8 @@ export default function ProductList() {
       try {
         await productService.deleteProduct(productId);
         fetchProducts(); // Refresh list after delete
-      } catch (err: any) {
+      } catch (err: unknown) {
+        if (err instanceof Error)
         alert(`Error: ${err.message}`);
       }
     }

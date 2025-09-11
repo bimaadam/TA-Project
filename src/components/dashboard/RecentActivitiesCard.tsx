@@ -22,12 +22,15 @@ export default function RecentActivitiesCard() {
         ]);
         setRecentEntries(journalRes.slice(0, 5)); // Get top 5 recent journal entries
         setRecentInvoices(invoiceRes.slice(0, 5)); // Get top 5 recent invoices
-      } catch (err: any) {
-        setError(err.message || 'Failed to fetch recent activities');
+      } catch (err: unknown) {
+        if (err instanceof Error) {
+          setError(err.message);
+        } else {
+          setError("Failed to fetch Journal Entries data");
+        }
       } finally {
-        setLoading(false);
+      }setLoading(false)
       }
-    };
     fetchData();
   }, []);
 

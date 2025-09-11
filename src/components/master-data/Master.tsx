@@ -4,10 +4,13 @@ import React, { useEffect, useState } from 'react';
 import { clientService, Client, CreateClientPayload, UpdateClientPayload } from '@/services/client.service';
 import Button from '@/components/ui/button/Button';
 
+// Define error type
+interface ApiError {
+  message: string;
+}
+
 // Modal for Adding a Client
 const AddClientModal = ({ isOpen, onClose, onClientAdded }: { isOpen: boolean, onClose: () => void, onClientAdded: () => void }) => {
-  if (!isOpen) return null;
-
   const [formData, setFormData] = useState<CreateClientPayload>({
     email: '',
     password: '',
@@ -31,12 +34,15 @@ const AddClientModal = ({ isOpen, onClose, onClientAdded }: { isOpen: boolean, o
       await clientService.createClient(formData);
       onClientAdded();
       onClose();
-    } catch (err: any) {
-      setError(err.message || 'Failed to create client');
+    } catch (err) {
+      const apiError = err as ApiError;
+      setError(apiError.message || 'Failed to create client');
     } finally {
       setLoading(false);
     }
   };
+
+  if (!isOpen) return null;
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
@@ -62,16 +68,26 @@ const AddClientModal = ({ isOpen, onClose, onClientAdded }: { isOpen: boolean, o
 
 // Modal for Editing a Client
 const EditClientModal = ({ client, isOpen, onClose, onClientUpdated }: { client: Client | null, isOpen: boolean, onClose: () => void, onClientUpdated: () => void }) => {
-  if (!isOpen || !client) return null;
-
   const [formData, setFormData] = useState<UpdateClientPayload>({
-    firstName: client.firstName,
-    lastName: client.lastName,
-    email: client.email,
-    phone: client.phone || '',
+    firstName: client?.firstName || '',
+    lastName: client?.lastName || '',
+    email: client?.email || '',
+    phone: client?.phone || '',
   });
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+
+  // Update form data when client changes
+  useEffect(() => {
+    if (client) {
+      setFormData({
+        firstName: client.firstName,
+        lastName: client.lastName,
+        email: client.email,
+        phone: client.phone || '',
+      });
+    }
+  }, [client]);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -80,18 +96,23 @@ const EditClientModal = ({ client, isOpen, onClose, onClientUpdated }: { client:
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!client) return;
+    
     setLoading(true);
     setError(null);
     try {
       await clientService.updateClient(client.id, formData);
       onClientUpdated();
       onClose();
-    } catch (err: any) {
-      setError(err.message || 'Failed to update client');
+    } catch (err) {
+      const apiError = err as ApiError;
+      setError(apiError.message || 'Failed to update client');
     } finally {
       setLoading(false);
     }
   };
+
+  if (!isOpen || !client) return null;
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
@@ -116,7 +137,6 @@ const EditClientModal = ({ client, isOpen, onClose, onClientUpdated }: { client:
   );
 };
 
-
 export default function MasterDataClient() {
   const [clients, setClients] = useState<Client[]>([]);
   const [loading, setLoading] = useState(true);
@@ -130,8 +150,9 @@ export default function MasterDataClient() {
     try {
       const response = await clientService.getClients();
       setClients(response.data);
-    } catch (err: any) {
-      setError(err.message || 'Failed to fetch clients');
+    } catch (err) {
+      const apiError = err as ApiError;
+      setError(apiError.message || 'Failed to fetch clients');
     } finally {
       setLoading(false);
     }
@@ -151,8 +172,9 @@ export default function MasterDataClient() {
       try {
         await clientService.deleteClient(clientId);
         fetchClients(); // Refresh list after delete
-      } catch (err: any) {
-        alert(`Error: ${err.message}`);
+      } catch (err) {
+        const apiError = err as ApiError;
+        alert(`Error: ${apiError.message}`);
       }
     }
   };

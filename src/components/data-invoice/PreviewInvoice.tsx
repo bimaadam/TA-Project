@@ -40,12 +40,16 @@ export default function PreviewInvoice({ invoiceId }: PreviewInvoiceProps) {
         ]);
         setClient(clientData);
         setProject(projectData);
-      } catch (err: any) {
-        setError(err.message || "Failed to fetch invoice details");
-      } finally {
-        setLoading(false);
+      } catch (err: unknown) {
+      if (err instanceof Error) {
+        setError(err.message);
+      } else {
+        setError('Failed to fetch Invoice data');
       }
-    };
+    } finally {
+      setLoading(false);
+    }
+  };
 
     fetchData();
   }, [invoiceId]);
@@ -57,29 +61,41 @@ export default function PreviewInvoice({ invoiceId }: PreviewInvoiceProps) {
     setIsExporting(true);
     try {
       const canvas = await html2canvas(invoiceRef.current, {
-        scale: 2,
-        useCORS: true,
-        allowTaint: true,
-        backgroundColor: '#ffffff',
-        onclone: (clonedDoc) => {
-          // Force all elements to use standard colors
-          const allElements = clonedDoc.querySelectorAll('*');
-          allElements.forEach((element: any) => {
-            const computedStyle = window.getComputedStyle(element);
-            
-            // Replace any modern color formats with standard ones
-            if (computedStyle.color && (computedStyle.color.includes('oklab') || computedStyle.color.includes('oklch'))) {
-              element.style.color = '#000000';
-            }
-            if (computedStyle.backgroundColor && (computedStyle.backgroundColor.includes('oklab') || computedStyle.backgroundColor.includes('oklch'))) {
-              element.style.backgroundColor = '#ffffff';
-            }
-            if (computedStyle.borderColor && (computedStyle.borderColor.includes('oklab') || computedStyle.borderColor.includes('oklch'))) {
-              element.style.borderColor = '#e5e7eb';
-            }
-          });
-        },
-      });
+  scale: 2,
+  useCORS: true,
+  allowTaint: true,
+  backgroundColor: '#ffffff',
+  onclone: (clonedDoc) => {
+    const allElements = clonedDoc.querySelectorAll('*');
+    allElements.forEach((element) => {
+      if (element instanceof HTMLElement) {
+        const computedStyle = window.getComputedStyle(element);
+
+        if (
+          computedStyle.color &&
+          (computedStyle.color.includes('oklab') || computedStyle.color.includes('oklch'))
+        ) {
+          element.style.color = '#000000';
+        }
+
+        if (
+          computedStyle.backgroundColor &&
+          (computedStyle.backgroundColor.includes('oklab') || computedStyle.backgroundColor.includes('oklch'))
+        ) {
+          element.style.backgroundColor = '#ffffff';
+        }
+
+        if (
+          computedStyle.borderColor &&
+          (computedStyle.borderColor.includes('oklab') || computedStyle.borderColor.includes('oklch'))
+        ) {
+          element.style.borderColor = '#e5e7eb';
+        }
+      }
+    });
+  },
+});
+
 
       const imgData = canvas.toDataURL('image/png');
       const pdf = new jsPDF('p', 'mm', 'a4');

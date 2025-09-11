@@ -23,7 +23,7 @@ export default function ProjectDetailReport({
 }: ProjectDetailReportProps) {
   const [project, setProject] = useState<Project | null>(null);
   const [journalEntries, setJournalEntries] = useState<JournalEntry[]>([]);
-  const [accounts, setAccounts] = useState<Account[]>([]);
+  const [, setAccounts] = useState<Account[]>([]);
   const [invoices, setInvoices] = useState<Invoice[]>([]);
   const [summary, setSummary] = useState<ProjectSummary | null>(null);
   const [loading, setLoading] = useState(true);
@@ -90,7 +90,8 @@ export default function ProjectDetailReport({
         const netProfit = totalRevenue - totalExpense;
 
         setSummary({ totalRevenue, totalExpense, netProfit });
-      } catch (err: any) {
+      } catch (err: unknown) {
+        if (err instanceof Error)
         setError(err.message || "Failed to fetch project details");
       } finally {
         setLoading(false);

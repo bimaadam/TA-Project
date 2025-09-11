@@ -28,7 +28,7 @@ export default function CreateIncomeForm() {
     ]).then(([accs, projs]) => {
       setAccounts(accs);
       setProjects(projs);
-    }).catch(err => setError('Failed to load initial data'));
+    }).catch(() => setError('Failed to load initial data'));
   }, []);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
@@ -62,12 +62,16 @@ export default function CreateIncomeForm() {
       await journalService.createJournalEntry(payload);
       alert('Income recorded successfully!');
       router.push('/finance/income'); // Redirect to income list page
-    } catch (err: any) {
-      setError(err.message || 'Failed to record income');
+    } catch (err: unknown) {
+      if (err instanceof Error) {
+        setError(err.message)
+      } else {
+        setError("failed to fetch income") 
+        } 
     } finally {
-      setLoading(false);
+      setLoading(false)
+      }
     }
-  };
 
   return (
     <form onSubmit={handleSubmit} className="space-y-6 p-4">

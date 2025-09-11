@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useEffect, useState } from 'react';
-import { productService, Product } from '@/services/product.service';
+import { productService } from '@/services/product.service';
 
 export default function ProductSummaryCard() {
   const [totalProducts, setTotalProducts] = useState(0);
@@ -17,12 +17,15 @@ export default function ProductSummaryCard() {
         setTotalProducts(response.length);
         const value = response.reduce((sum, product) => sum + (product.unitPrice * product.stock), 0);
         setTotalStockValue(value);
-      } catch (err: any) {
-        setError(err.message || 'Failed to fetch product data');
+      } catch (err: unknown) {
+        if (err instanceof Error) {
+          setError(err.message);
+        } else {
+          setError("Failed to fetch Product data");
+        }
       } finally {
-        setLoading(false);
+      }setLoading(false)
       }
-    };
     fetchData();
   }, []);
 

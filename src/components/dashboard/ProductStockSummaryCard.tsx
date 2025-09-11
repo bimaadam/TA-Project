@@ -15,12 +15,15 @@ export default function ProductStockSummaryCard() {
         const products = await productService.getProducts();
         const calculatedTotalStock = products.reduce((sum, product) => sum + product.stock, 0);
         setTotalStock(calculatedTotalStock);
-      } catch (err: any) {
-        setError(err.message || 'Failed to fetch product data');
+      } catch (err: unknown) {
+        if (err instanceof Error) {
+          setError(err.message);
+        } else {
+          setError("Failed to fetch Product Stock data");
+        }
       } finally {
-        setLoading(false);
+      }setLoading(false)
       }
-    };
     fetchData();
   }, []);
 

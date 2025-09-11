@@ -30,7 +30,8 @@ export default function CreateProductForm() {
       await productService.createProduct(formData);
       alert('Product created successfully!');
       router.push('/master-data-produk'); // Redirect to product list page
-    } catch (err: any) {
+    } catch (err: unknown) {
+      if (err instanceof Error)
       setError(err.message || 'Failed to create product');
     } finally {
       setLoading(false);

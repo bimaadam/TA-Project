@@ -4,7 +4,7 @@ import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
 import Button from '@/components/ui/button/Button';
 import { projectService, Project } from '@/services/project.service';
-import { clientService, Client } from '@/services/client.service';
+import { clientService } from '@/services/client.service';
 import Badge from "@/components/ui/badge/Badge";
 
 export default function ProjectList() {
@@ -29,7 +29,8 @@ export default function ProjectList() {
       setClients(clientMap);
       setProjects(projectResponse);
 
-    } catch (err: any) {
+    } catch (err: unknown) {
+      if (err instanceof Error)
       setError(err.message || 'Failed to fetch data');
     } finally {
       setLoading(false);
@@ -45,7 +46,8 @@ export default function ProjectList() {
       try {
         await projectService.deleteProject(projectId);
         fetchData(); // Refresh list after delete
-      } catch (err: any) {
+      } catch (err: unknown) {
+        if (err instanceof Error)
         alert(`Error: ${err.message}`);
       }
     }

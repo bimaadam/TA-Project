@@ -1,24 +1,47 @@
-"use client"
-import { useEffect, useState } from "react";
+"use client";
 
+import { useEffect, useState } from "react";
 import { RefreshCw, TrendingUp, Plus } from "lucide-react";
 import Link from "next/link";
 import { journalService } from "@/services/journal.service";
 import Button from "../ui/button/Button";
 
+// Type definitions
+interface User {
+  fullName: string;
+}
+
+interface JournalLine {
+  id: string;
+  amount: number;
+  isDebit: boolean;
+  accountId: string;
+}
+
+interface IncomeEntry {
+  id: string;
+  date: string;
+  description: string;
+  lines: JournalLine[];
+  recordedByUser: User;
+}
 
 export default function IncomeTransaction() {
-  const [incomeEntries, setIncomeEntries] = useState<any[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [incomeEntries, setIncomeEntries] = useState<IncomeEntry[]>([]);
+  const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
 
-  const fetchIncome = async () => {
+  const fetchIncome = async (): Promise<void> => {
     setLoading(true);
     try {
       const response = await journalService.getRevenueEntries();
-      setIncomeEntries(response);
-    } catch (err: any) {
-      setError(err.message || "Failed to fetch income entries");
+      setIncomeEntries(response as unknown as IncomeEntry[]);
+    } catch (err: unknown) {
+      if (err instanceof Error) {
+        setError(err.message);
+      } else {
+        setError("Failed to fetch income");
+      }
     } finally {
       setLoading(false);
     }
@@ -28,7 +51,7 @@ export default function IncomeTransaction() {
     fetchIncome();
   }, []);
 
-  const formatCurrency = (amount: number) =>
+  const formatCurrency = (amount: number): string =>
     new Intl.NumberFormat("id-ID", {
       style: "currency",
       currency: "IDR",
@@ -36,7 +59,7 @@ export default function IncomeTransaction() {
     }).format(amount);
 
   const totalIncome = incomeEntries.reduce((sum, entry) => {
-    const incomeLine = entry.lines.find((line: any) => !line.isDebit); // credit line
+    const incomeLine = entry.lines.find((line: JournalLine) => !line.isDebit); // credit line
     return sum + (incomeLine?.amount || 0);
   }, 0);
 
@@ -127,7 +150,7 @@ export default function IncomeTransaction() {
                   </td>
                 </tr>
               ) : (
-                incomeEntries.map((entry: any) => (
+                incomeEntries.map((entry: IncomeEntry) => (
                   <tr key={entry.id} className="hover:bg-gray-50">
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                       {new Date(entry.date).toLocaleDateString("id-ID")}
@@ -137,7 +160,7 @@ export default function IncomeTransaction() {
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-green-600">
                       {formatCurrency(
-                        entry.lines.find((l: any) => !l.isDebit)?.amount || 0
+                        entry.lines.find((l: JournalLine) => !l.isDebit)?.amount || 0
                       )}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">

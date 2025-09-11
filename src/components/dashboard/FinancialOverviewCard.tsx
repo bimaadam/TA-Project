@@ -10,23 +10,28 @@ export default function FinancialOverviewCard() {
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    const fetchData = async () => {
-      setLoading(true);
-      try {
-        const [incomeData, balanceData] = await Promise.all([
-          reportService.getIncomeStatement(),
-          reportService.getBalanceSheet(),
-        ]);
-        setIncomeStatement(incomeData);
-        setBalanceSheet(balanceData);
-      } catch (err: any) {
-        setError(err.message || 'Failed to fetch financial data');
-      } finally {
-        setLoading(false);
+  const fetchData = async () => {
+    setLoading(true);
+    try {
+      const [incomeData, balanceData] = await Promise.all([
+        reportService.getIncomeStatement(),
+        reportService.getBalanceSheet(),
+      ]);
+      setIncomeStatement(incomeData);
+      setBalanceSheet(balanceData);
+    } catch (err: unknown) {
+      if (err instanceof Error) {
+        setError(err.message);
+      } else {
+        setError('Failed to fetch financial data');
       }
-    };
-    fetchData();
-  }, []);
+    } finally {
+      setLoading(false);
+    }
+  };
+  fetchData();
+}, []);
+
 
   const formatCurrency = (amount: number) => new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR' }).format(amount);
 

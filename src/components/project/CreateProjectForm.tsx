@@ -28,7 +28,7 @@ export default function CreateProjectForm() {
   useEffect(() => {
     clientService.getClients()
       .then(response => setClients(response.data))
-      .catch(err => setError('Failed to load clients'));
+      .catch(() => setError('Failed to load clients'));
   }, []);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
@@ -55,7 +55,8 @@ export default function CreateProjectForm() {
       await projectService.createProject(payload);
       alert('Project created successfully!');
       router.push('/projects'); // Redirect to the project list page
-    } catch (err: any) {
+    } catch (err: unknown) {
+      if (err instanceof Error)
       setError(err.message || 'Failed to create project');
     } finally {
       setLoading(false);
