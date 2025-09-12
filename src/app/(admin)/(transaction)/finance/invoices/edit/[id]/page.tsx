@@ -2,8 +2,14 @@ import EditInvoiceForm from "@/components/invoice/EditInvoiceForm";
 import ComponentCard from "@/components/common/ComponentCard";
 import PageBreadcrumb from "@/components/common/PageBreadCrumb";
 
-export default async function EditInvoicePage({ params }: { params: { id: string } } ) {
-    const {id} = await params
+interface PageProps {
+  params: {
+    id: string;
+  };
+}
+
+export default async function EditInvoicePage({ params }: PageProps ) {
+    const {id} = params
     return (
         <div>
             <PageBreadcrumb pageTitle="Edit Faktur" />
