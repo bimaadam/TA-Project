@@ -39,7 +39,7 @@ export default function SignUpForm() {
         fullName: `${formdata.firstName} ${formdata.lastName}`,
         email: formdata.email,
         password: formdata.password,
-        role: '', 
+        role: formdata.role,
         isVerified: formdata.isVerified
       };
 
@@ -51,7 +51,8 @@ export default function SignUpForm() {
       setTimeout(() => {
         router.push("/signin");
       }, 1500); // Redirect after 1.5 seconds
-    } catch (err: any) {
+    } catch (err: unknown) {
+      if (err instanceof Error)
       setError(err.message || 'Terjadi error saat registrasi');
     } finally {
       setLoading(false);

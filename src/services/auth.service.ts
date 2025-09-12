@@ -38,7 +38,7 @@ interface RegisterPayload {
   password: string;
   phone?: string; // Made optional
   avatar?: string; // Made optional
-  role: 'CLIENT';
+  role: string;
   isVerified: boolean;
 }
 
