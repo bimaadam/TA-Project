@@ -5,9 +5,10 @@ import PageBreadcrumb from "@/components/common/PageBreadCrumb";
 export default async function EditInvoicePage({
   params,
 }: {
-  params: { id: string };
+  params: Promise<{ id: string }>;
 }) {
-    const { id } = params;
+  const { id } = await params;
+  
   return (
     <div>
       <PageBreadcrumb pageTitle="Edit Faktur" />
