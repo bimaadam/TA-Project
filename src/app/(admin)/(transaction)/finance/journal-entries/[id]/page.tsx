@@ -2,6 +2,8 @@ import ViewJournalEntry from "@/components/journal/ViewJournalEntry";
 import ComponentCard from "@/components/common/ComponentCard";
 import PageBreadcrumb from "@/components/common/PageBreadCrumb";
 
+
+
 export default async function ViewJournalEntryPage({
     params,
 }: {

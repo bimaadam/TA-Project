@@ -2,11 +2,13 @@ import EditInvoiceForm from "@/components/invoice/EditInvoiceForm";
 import ComponentCard from "@/components/common/ComponentCard";
 import PageBreadcrumb from "@/components/common/PageBreadCrumb";
 
+interface EditInvoicePageProps {
+  params: Promise<{ id: string }>;
+}
+
 export default async function EditInvoicePage({
   params,
-}: {
-  params: Promise<{ id: string }>;
-}) {
+}: EditInvoicePageProps) {
   const { id } = await params;
   
   return (
