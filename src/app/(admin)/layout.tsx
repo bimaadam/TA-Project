@@ -18,9 +18,10 @@ export default function AdminLayout({
   const pathname = usePathname();
   const { user, loading, isReady } = useUser(); // Consume user context, added isReady
 
-  const publicPaths = ['/signin', 'signup', '/reset-pwd']
+  
 
   useEffect(() => {
+    const publicPaths = ['/signin', 'signup', '/reset-pwd']
     // If not ready, wait for UserProvider to stabilize
     if (!isReady) {
       return;
@@ -42,7 +43,7 @@ export default function AdminLayout({
       return;
     }
 
-  }, [user, isReady, pathname, router, publicPaths]);
+  }, [user, isReady, pathname, router]);
 
 
   const { isExpanded, isHovered, isMobileOpen } = useSidebar();

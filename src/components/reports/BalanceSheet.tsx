@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { reportService, BalanceSheetData } from '@/services/report.service';
 import Button from '@/components/ui/button/Button';
 
@@ -10,7 +10,7 @@ export default function BalanceSheet() {
   const [error, setError] = useState<string | null>(null);
   const [asOfDate, setAsOfDate] = useState('');
 
-  const generateReport = async () => {
+  const generateReport = useCallback( async () => {
     setLoading(true);
     setError(null);
     try {
@@ -22,13 +22,13 @@ export default function BalanceSheet() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [asOfDate])
 
   useEffect(() => {
     // Generate report on initial load for current date
     setAsOfDate(new Date().toISOString().split('T')[0]);
     generateReport();
-  }, []);
+  }, [generateReport]);
 
   const formatCurrency = (amount: number) => new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR' }).format(amount);
 

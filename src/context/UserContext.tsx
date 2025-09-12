@@ -7,6 +7,7 @@ import React,
     useState,
     useEffect,
     ReactNode,
+    useCallback,
   } from "react";
 import { authService } from "@/services/auth.service";
 import { useRouter } from "next/navigation";
@@ -42,7 +43,7 @@ export const UserProvider: React.FC<UserProviderProps> = ({ children }) => {
   const [isReady, setIsReady] = useState(false); // New state
   const router = useRouter();
 
-  const fetchUser = async () => {
+  const fetchUser = useCallback (async () => {
   setLoading(true);
   setError(null);
   try {
@@ -70,7 +71,7 @@ export const UserProvider: React.FC<UserProviderProps> = ({ children }) => {
   setIsReady(true);
 }
 
-};
+}, [router])
 
 
   const logout = () => {
@@ -89,7 +90,7 @@ export const UserProvider: React.FC<UserProviderProps> = ({ children }) => {
       setLoading(false); // No token, so not loading user
       setIsReady(true); // Set ready if no token found
     }
-  }, []);
+  }, [fetchUser]);
 
   return (
     <UserContext.Provider value={{ user, loading, error, isReady, fetchUser, logout }}>

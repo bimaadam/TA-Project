@@ -1,5 +1,5 @@
 'use client'
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { Search, Plus, ChevronLeft, ChevronRight, Filter, Download, Eye, Edit, Trash2, TrendingUp, Activity, Building2, CheckCircle, Clock } from 'lucide-react';
 
 export default function CashReceiptsComponent() {
@@ -58,7 +58,7 @@ export default function CashReceiptsComponent() {
     ]);
 
     // Fetch data from API
-    const fetchReceipts = async () => {
+    const fetchReceipts = useCallback (async () => {
         setLoading(true);
         try {
             // Using environment variable for API URL
@@ -82,7 +82,7 @@ export default function CashReceiptsComponent() {
         } finally {
             setLoading(false);
         }
-    };
+    },[receipts]);
 
     // Submit new receipt
     const handleSubmit = async () => {
@@ -133,7 +133,7 @@ export default function CashReceiptsComponent() {
     // Load data on component mount
     useEffect(() => {
         fetchReceipts();
-    }, []);
+    }, [fetchReceipts]);
 
     const filteredReceipts = receipts.filter(receipt =>
         receipt.clientName.toLowerCase().includes(searchTerm.toLowerCase()) ||

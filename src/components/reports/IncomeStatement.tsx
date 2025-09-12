@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { reportService, IncomeStatementData } from '@/services/report.service';
 import Button from '@/components/ui/button/Button';
 
@@ -11,7 +11,7 @@ export default function IncomeStatement() {
   const [startDate, setStartDate] = useState('');
   const [endDate, setEndDate] = useState('');
 
-  const generateReport = async () => {
+  const generateReport = useCallback (async () => {
     setLoading(true);
     setError(null);
     try {
@@ -23,12 +23,12 @@ export default function IncomeStatement() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [startDate, endDate])
 
   useEffect(() => {
     // Generate report on initial load for all time
     generateReport();
-  }, []);
+  }, [generateReport]);
 
   const formatCurrency = (amount: number) => new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR' }).format(amount);
 

@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import Link from 'next/link';
 import Button from '@/components/ui/button/Button';
 import { reportService, ProjectSummaryData } from '@/services/report.service';
@@ -13,23 +13,24 @@ export default function ProjectReportTable() {
   const [startDate, setStartDate] = useState('');
   const [endDate, setEndDate] = useState('');
 
-  useEffect(() => {
-    const getData = async () => {
-      setLoading(true);
-      setError(null);
-      try {
-        const response = await reportService.getProjectSummary(startDate, endDate);
-        setProjects(response);
-      } catch (err: unknown) {
-        if (err instanceof Error)
-          setError(err.message || 'Failed to fetch project report data');
-      } finally {
-        setLoading(false);
-      }
-    };
+  const fetchData = useCallback(async () => {
+  setLoading(true);
+  setError(null);
+  try {
+    const response = await reportService.getProjectSummary(startDate, endDate);
+    setProjects(response);
+  } catch (err: unknown) {
+    if (err instanceof Error)
+      setError(err.message || 'Failed to fetch project report data');
+  } finally {
+    setLoading(false);
+  }
+}, [startDate, endDate]);
 
-    getData();
-  }, [startDate, endDate]);
+useEffect(() => {
+  fetchData();
+}, [fetchData]);
+
 
   const formatCurrency = (amount: number) => new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR' }).format(amount);
 
@@ -39,10 +40,6 @@ export default function ProjectReportTable() {
 
   if (error) {
     return <div className="text-red-500">Error: {error}</div>;
-  }
-
-  function fetchData(): void {
-    throw new Error('Function not implemented.');
   }
 
   return (
