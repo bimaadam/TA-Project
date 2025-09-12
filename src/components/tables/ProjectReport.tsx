@@ -13,22 +13,22 @@ export default function ProjectReportTable() {
   const [startDate, setStartDate] = useState('');
   const [endDate, setEndDate] = useState('');
 
-  const fetchData = async () => {
-    setLoading(true);
-    setError(null);
-    try {
-      const response = await reportService.getProjectSummary(startDate, endDate);
-      setProjects(response);
-    } catch (err: unknown) {
-      if (err instanceof Error)
-      setError(err.message || 'Failed to fetch project report data');
-    } finally {
-      setLoading(false);
-    }
-  };
-
   useEffect(() => {
-    fetchData();
+    const getData = async () => {
+      setLoading(true);
+      setError(null);
+      try {
+        const response = await reportService.getProjectSummary(startDate, endDate);
+        setProjects(response);
+      } catch (err: unknown) {
+        if (err instanceof Error)
+          setError(err.message || 'Failed to fetch project report data');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    getData();
   }, [startDate, endDate]);
 
   const formatCurrency = (amount: number) => new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR' }).format(amount);
@@ -39,6 +39,10 @@ export default function ProjectReportTable() {
 
   if (error) {
     return <div className="text-red-500">Error: {error}</div>;
+  }
+
+  function fetchData(): void {
+    throw new Error('Function not implemented.');
   }
 
   return (
