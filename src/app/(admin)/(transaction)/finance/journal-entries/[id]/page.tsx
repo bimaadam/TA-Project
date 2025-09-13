@@ -2,13 +2,13 @@ import ViewJournalEntry from "@/components/journal/ViewJournalEntry";
 import ComponentCard from "@/components/common/ComponentCard";
 import PageBreadcrumb from "@/components/common/PageBreadCrumb";
 
-
+interface ViewJournalEntryPageProps {
+    params: Promise<{ id: string }>;
+}
 
 export default async function ViewJournalEntryPage({
     params,
-}: {
-        params: Promise<{ id: string }>;
-    }) {
+}: ViewJournalEntryPageProps) {
     const {id} = await params
     return (
         <div>
