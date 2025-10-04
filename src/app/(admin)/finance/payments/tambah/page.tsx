@@ -6,7 +6,7 @@ export default function CreatePaymentPage() {
     return (
         <div>
             <PageBreadcrumb pageTitle="Tambah Pembayaran" />
-            <PaymentForm invoiceId={""} amount={0} onSuccess={() => { }} onCancel={() => { }} />
+            <PaymentForm invoiceId={""} amount={0} onSuccess={() => { }} onCancelAction={() => { }} />
         </div>
     )
 }

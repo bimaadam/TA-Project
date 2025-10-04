@@ -41,8 +41,8 @@ export default function CreateOrderForm() {
       await orderService.createOrder(payload);
       alert('Order created successfully!');
       router.push('/orders'); // Redirect to order list page
-    } catch (err: any) {
-      setError(err.message || 'Failed to create order');
+    } catch (err: unknown) {
+      setError(err instanceof Error ? err.message : 'Failed to create order');
     } finally {
       setLoading(false);
     }

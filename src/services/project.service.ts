@@ -4,7 +4,7 @@ const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001';
 
 // Interface for the Project object
 export interface Project {
-  invoiceId: any;
+  invoiceId: string;
   id: string;
   fullName: string;
   name: string;

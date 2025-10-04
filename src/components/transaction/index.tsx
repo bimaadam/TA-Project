@@ -1,6 +1,6 @@
 'use client'
 import React, { useState, useEffect, useCallback } from 'react';
-import { Search, Plus, ChevronLeft, ChevronRight, Filter, Download, Eye, Edit, Trash2, TrendingUp, Activity, Building2, CheckCircle, Clock, XCircle, RotateCw } from 'lucide-react';
+import { Search, Plus, ChevronLeft, ChevronRight, Filter, Download, Eye, Edit, Trash2, TrendingUp, Activity, Building2, CheckCircle, Clock } from 'lucide-react';
 import Button from '@/components/ui/button/Button';
 import { paymentService } from '@/services/payment.service';
 import Badge from '@/components/ui/badge/Badge';
@@ -51,7 +51,7 @@ const PaymentList: React.FC<{ canDelete?: boolean }> = ({ canDelete = true }) =>
     if (loading) return <div>Loading payments...</div>;
     if (error) return <div className="text-red-500">{error}</div>;
 
-    const getStatusBadgeProps = (status: string): { color: 'warning' | 'success' | 'danger' | 'info' | 'secondary'; label: string } => {
+    const getStatusBadgeProps = (status: string): { color: 'warning' | 'success' | 'error' | 'info' | 'primary' | 'light' | 'dark'; label: string } => {
         const key = status?.toUpperCase?.() || '';
         switch (key) {
             case 'PENDING':
@@ -59,13 +59,13 @@ const PaymentList: React.FC<{ canDelete?: boolean }> = ({ canDelete = true }) =>
             case 'COMPLETED':
                 return { color: 'success', label: 'COMPLETED' };
             case 'FAILED':
-                return { color: 'danger', label: 'FAILED' };
+                return { color: 'error', label: 'FAILED' };
             case 'REFUNDED':
                 return { color: 'info', label: 'REFUNDED' };
             case 'PARTIALLY_PAID':
-                return { color: 'secondary', label: 'PARTIALLY PAID' };
+                return { color: 'warning', label: 'PARTIALLY PAID' };
             default:
-                return { color: 'secondary', label: status };
+                return { color: 'primary', label: status };
         }
     };
 

@@ -17,8 +17,8 @@ export default function OrderList({ basePath = "/orders" }: { basePath?: string 
     try {
       const response = await orderService.getOrders();
       setOrders(response);
-    } catch (err: any) {
-      setError(err.message || 'Failed to fetch orders');
+    } catch (err: unknown) {
+      setError(err instanceof Error ? err.message : 'Failed to fetch orders');
     } finally {
       setLoading(false);
     }
@@ -33,8 +33,8 @@ export default function OrderList({ basePath = "/orders" }: { basePath?: string 
       try {
         await orderService.deleteOrder(orderId);
         fetchOrders(); // Refresh list after delete
-      } catch (err: any) {
-        alert(`Error: ${err.message}`);
+      } catch (err: unknown) {
+        alert(`Error: ${err instanceof Error ? err.message : 'An error occurred'}`);
       }
     }
   };

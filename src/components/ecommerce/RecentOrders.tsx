@@ -20,13 +20,13 @@ export default function RecentOrders() {
       setLoading(true);
       try {
         const allProjects = await projectService.getProjects();
-        // Sort by creation date and take the latest 5
+        // Sort by start date and take the latest 5
         const recentProjects = allProjects
-          .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
+          .sort((a, b) => new Date(b.startDate).getTime() - new Date(a.startDate).getTime())
           .slice(0, 5);
         setProjects(recentProjects);
-      } catch (err: any) {
-        setError(err.message || 'Failed to fetch recent projects');
+      } catch (err: unknown) {
+        setError(err instanceof Error ? err.message : 'Failed to fetch recent projects');
       } finally {
         setLoading(false);
       }

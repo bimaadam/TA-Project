@@ -33,8 +33,8 @@ export default function EditOrderForm({ orderId }: EditOrderFormProps) {
           status: orderData.status,
         });
 
-      } catch (err: any) {
-        setError(err.message || 'Failed to load order data');
+      } catch (err: unknown) {
+        setError(err instanceof Error ? err.message : 'Failed to load order data');
       } finally {
         setLoading(false);
       }
@@ -58,8 +58,8 @@ export default function EditOrderForm({ orderId }: EditOrderFormProps) {
       await orderService.updateOrder(orderId, formData);
       alert('Order updated successfully!');
       router.push('/orders'); // Redirect to order list page
-    } catch (err: any) {
-      setError(err.message || 'Failed to update order');
+    } catch (err: unknown) {
+      setError(err instanceof Error ? err.message : 'Failed to update order');
     } finally {
       setLoading(false);
     }

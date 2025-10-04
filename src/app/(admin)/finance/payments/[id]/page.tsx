@@ -2,8 +2,9 @@ import { paymentService } from "@/services/payment.service";
 import { notFound } from 'next/navigation';
 import PaymentDetail from "@/components/payment/PaymentDetail";
 
-export default async function PaymentDetailPage({ params }: { params: { id: string } }) {
-  const payment = await paymentService.getPaymentById(params.id);
+export default async function PaymentDetailPage({ params }: { params: Promise<{ id: string }> }) {
+  const { id } = await params;
+  const payment = await paymentService.getPaymentById(id);
 
   if (!payment) {
     notFound();

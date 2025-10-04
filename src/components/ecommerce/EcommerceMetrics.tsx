@@ -14,8 +14,8 @@ export const EcommerceMetrics = () => {
       try {
         const data = await dashboardService.getSummary();
         setSummary(data);
-      } catch (err: any) {
-        setError(err.message || 'Failed to load summary');
+      } catch (err: unknown) {
+        setError(err instanceof Error ? err.message : 'Failed to load summary');
       } finally {
         setLoading(false);
       }

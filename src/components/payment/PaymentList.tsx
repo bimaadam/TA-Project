@@ -9,6 +9,17 @@ import { format } from 'date-fns';
 import { id } from 'date-fns/locale';
 import Button from '../ui/button/Button';
 
+interface Payment {
+  id: string;
+  amount: number;
+  method: string;
+  status: string;
+  reference?: string;
+  notes?: string;
+  paymentDate: string;
+  invoiceId?: string;
+}
+
 interface PaymentListProps {
   invoiceId?: string;
   showInvoiceLink?: boolean;
@@ -17,7 +28,7 @@ interface PaymentListProps {
 
 export default function PaymentList({ invoiceId, showInvoiceLink = false, canDelete = true }: PaymentListProps) {
   const router = useRouter();
-  const [payments, setPayments] = useState<any[]>([]);
+  const [payments, setPayments] = useState<Payment[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
 
@@ -49,13 +60,31 @@ export default function PaymentList({ invoiceId, showInvoiceLink = false, canDel
       toast.success('Pembayaran berhasil dihapus');
       // Refresh the payments list after deletion
       await loadPayments();
-    } catch (error) {
+    } catch (error: unknown) {
       console.error('Gagal menghapus pembayaran:', error);
       toast.error('Gagal menghapus pembayaran');
     }
   };
 
   useEffect(() => {
+    const loadPayments = async () => {
+      try {
+        setLoading(true);
+        let data;
+        if (invoiceId) {
+          data = await paymentService.getPaymentById(invoiceId);
+        } else {
+          data = await paymentService.listPayments();
+        }
+        setPayments(Array.isArray(data) ? data : []);
+      } catch (error: unknown) {
+        console.error('Gagal memuat pembayaran:', error);
+        toast.error('Gagal memuat data pembayaran');
+      } finally {
+        setLoading(false);
+      }
+    };
+
     loadPayments();
   }, [invoiceId]);
 

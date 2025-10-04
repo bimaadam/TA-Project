@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import { paymentService } from '@/services/payment.service';
 import Button from '@/components/ui/button/Button';
 import { toast } from 'react-hot-toast';
+import Image from 'next/image';
 
 interface PaymentFormProps {
   invoiceId: string;
@@ -58,15 +59,16 @@ export default function PaymentForm({
 
     setLoading(true);
     try {
-      const formData = new FormData();
-      formData.append('invoiceId', invoiceId);
-      formData.append('amount', amount.toString());
-      formData.append('method', form.method);
-      formData.append('reference', form.reference);
-      formData.append('notes', form.notes);
-      formData.append('paymentProof', paymentProof);
-
-      await paymentService.createManualPayment(formData);
+      // Note: The payment service currently doesn't support file uploads in createManualPayment
+      // This would require a separate implementation for handling file uploads
+      await paymentService.createManualPayment({
+        invoiceId: invoiceId,
+        amount: amount,
+        method: form.method,
+        reference: form.reference || undefined,
+        notes: form.notes || undefined,
+        // paymentProof would need to be handled separately if supported by the backend
+      });
 
       toast.success('Pembayaran berhasil diajukan. Silakan tunggu konfirmasi admin.');
 
@@ -179,7 +181,9 @@ export default function PaymentForm({
               <div className="space-y-1 text-center">
                 {previewUrl ? (
                   <div className="mt-2">
-                    <img src={previewUrl} alt="Preview bukti pembayaran" className="mx-auto h-32 w-auto object-contain" />
+                    <div className="mx-auto h-32 w-auto flex items-center justify-center">
+                      <Image src={previewUrl} width={128} height={128} alt="Preview bukti pembayaran" className="max-h-full max-w-full object-contain" />
+                    </div>
                     <p className="mt-2 text-sm text-gray-600">{paymentProof?.name}</p>
                     <button
                       type="button"

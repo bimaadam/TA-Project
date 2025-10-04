@@ -1,5 +1,5 @@
 "use client"
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import Link from 'next/link';
 import Button from '@/components/ui/button/Button';
 import { projectService, Project } from '@/services/project.service';
@@ -14,7 +14,7 @@ export default function ProjectList() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  const fetchData = async () => {
+  const fetchData = useCallback(async () => {
     setLoading(true);
     try {
       let projectResponse: Project[];
@@ -40,13 +40,13 @@ export default function ProjectList() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [user]); // Include 'user' in dependencies
 
   useEffect(() => {
     if (isReady) { // Only fetch data when user context is ready
       fetchData();
     }
-  }, [user, isReady]); // Re-run when user or isReady changes
+  }, [isReady, fetchData]); // Re-run when user or isReady changes, include fetchData
 
   const handleDelete = async (projectId: string) => {
     if (window.confirm('Are you sure you want to delete this project?')) {

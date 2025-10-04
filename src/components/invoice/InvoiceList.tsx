@@ -1,5 +1,5 @@
 "use client"
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import Link from 'next/link';
 import Button from '@/components/ui/button/Button';
 import { invoiceService, Invoice } from '@/services/invoice.service';
@@ -16,7 +16,7 @@ export default function InvoiceList() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  const fetchData = async () => {
+  const fetchData = useCallback(async () => {
     setLoading(true);
     try {
       let invoiceResponse: Invoice[];
@@ -47,13 +47,13 @@ export default function InvoiceList() {
     } finally {
       setLoading(false)
     }
-  }
+  }, [user]); // Include 'user' in dependencies
 
   useEffect(() => {
     if (isReady) { // Only fetch data when user context is ready
       fetchData();
     }
-  }, [user, isReady]); // Re-run when user or isReady changes
+  }, [isReady, fetchData]); // Include fetchData in dependencies
 
   const handleDelete = async (invoiceId: string) => {
     if (window.confirm('Are you sure you want to delete this invoice?')) {

@@ -219,24 +219,12 @@ export default function PreviewInvoice({ invoiceId }: PreviewInvoiceProps) {
   const isClient = user?.role === "CLIENT";
   const isPayable = isClient && dueBalance > 0 && (invoice.status?.toUpperCase?.() !== 'PAID');
 
-  type SnapApi = {
-    pay: (
-      token: string,
-      callbacks?: {
-        onSuccess?: () => void;
-        onPending?: () => void;
-        onClose?: () => void;
-        onError?: () => void;
-      }
-    ) => void
-  };
-
   const handlePay = async () => {
     try {
       setIsPaying(true);
 
       // Create a manual payment record
-      const payment = await paymentService.createManualPayment({
+      await paymentService.createManualPayment({
         invoiceId: invoice.id,
         amount: dueBalance,
         method: paymentMethod,

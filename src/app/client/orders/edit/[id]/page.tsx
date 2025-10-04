@@ -2,7 +2,7 @@
 import PageBreadcrumb from "@/components/common/PageBreadCrumb";
 import { useEffect, useState } from "react";
 import Button from "@/components/ui/button/Button";
-import { orderService, Order } from "@/services/order.service";
+import { orderService } from "@/services/order.service";
 import { useParams } from "next/navigation";
 import { useRouter } from "next/navigation";
 import { useUser } from "@/context/UserContext";
@@ -12,7 +12,6 @@ export default function EditClientOrderPage() {
     const id = params?.id as string;
     const router = useRouter();
     const { user, isReady } = useUser();
-    const [order, setOrder] = useState<Order | null>(null);
     const [form, setForm] = useState({ description: "", status: "PENDING" });
     const [loading, setLoading] = useState(true);
     const [saving, setSaving] = useState(false);
@@ -28,6 +27,25 @@ export default function EditClientOrderPage() {
         }
     }, [user, isReady, router]);
 
+    useEffect(() => {
+        // Only load the order if user is not a CLIENT
+        if (isReady && user && user.role === 'CLIENT') {
+            return; // Early return if client, but hook still runs
+        }
+        
+        const load = async () => {
+            try {
+                const data = await orderService.getOrderById(id);
+                setForm({ description: data.description, status: data.status });
+            } catch (e: unknown) {
+                setError(e instanceof Error ? e.message : 'Failed to load order');
+            } finally {
+                setLoading(false);
+            }
+        };
+        if (id) load();
+    }, [id, user, isReady]);
+
     // If client, render nothing (will be redirected). Optionally show a message.
     if (isReady && user && user.role === 'CLIENT') {
         return (
@@ -40,21 +58,6 @@ export default function EditClientOrderPage() {
             </div>
         );
     }
-
-    useEffect(() => {
-        const load = async () => {
-            try {
-                const data = await orderService.getOrderById(id);
-                setOrder(data);
-                setForm({ description: data.description, status: data.status });
-            } catch (e: unknown) {
-                setError(e instanceof Error ? e.message : 'Failed to load order');
-            } finally {
-                setLoading(false);
-            }
-        };
-        if (id) load();
-    }, [id]);
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
         const { name, value } = e.target;

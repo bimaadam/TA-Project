@@ -8,6 +8,18 @@ import { id } from 'date-fns/locale';
 import Button from '@/components/ui/button/Button';
 import Link from 'next/link';
 
+interface Payment {
+  id: string;
+  amount: number;
+  method: string;
+  status: string;
+  reference?: string;
+  notes?: string;
+  paymentDate: string;
+  invoiceId?: string;
+  paymentProofUrl?: string;
+}
+
 interface PaymentDetailProps {
   paymentId: string;
   showBackButton?: boolean;
@@ -15,7 +27,7 @@ interface PaymentDetailProps {
 
 export default function PaymentDetail({ paymentId, showBackButton = true }: PaymentDetailProps) {
   const router = useRouter();
-  const [payment, setPayment] = useState<any>(null);
+  const [payment, setPayment] = useState<Payment | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
