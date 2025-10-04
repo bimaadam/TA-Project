@@ -4,6 +4,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { usePathname } from "next/navigation";
 import { useSidebar } from "../context/SidebarContext";
+import { useUser } from "../context/UserContext";
 import {
   BoltIcon,
   ChatIcon,
@@ -24,11 +25,12 @@ type NavItem = {
   subItems?: { icon?: ReactNode; name: string; path: string; pro?: boolean; new?: boolean }[];
 };
 
-const navItems: NavItem[] = [
+// ADMIN navigation items
+const adminNavItems: NavItem[] = [
   {
     icon: <GridIcon />,
     name: "Dashboard",
-    path: "/", // Langsung ke halaman ringkasan Dashboard
+    path: "/",
   },
   {
     name: "Manajemen Proyek",
@@ -36,7 +38,7 @@ const navItems: NavItem[] = [
     subItems: [
       { name: "Daftar Proyek", path: "/projects" },
       { name: "Tambah Proyek", path: "/projects/new" },
-      { name: "Progress Proyek", path: "/projects/progress" },
+      // { name: "Progress Proyek", path: "/projects/progress" },
     ],
   },
   {
@@ -45,9 +47,9 @@ const navItems: NavItem[] = [
     subItems: [
       { name: "Penerimaan Kas", path: "/finance/income" },
       { name: "Pengeluaran Kas", path: "/finance/expense" },
-      { name: "Jurnal Umum", path: "/finance/journal" },
+      // { name: "Jurnal Umum", path: "/finance/journal" },
       { name: "Daftar Entri Jurnal", path: "/finance/journal-entries" },
-      { name: "Entri Penjualan & Order", path: "/finance/order" },
+      // { name: "Entri Penjualan & Order", path: "/finance/order" },
     ],
   },
   {
@@ -55,7 +57,7 @@ const navItems: NavItem[] = [
     icon: <ListIcon />,
     subItems: [
       { name: "Daftar Faktur", path: "/finance/invoices" },
-      { name: "Status Pembayaran", path: "/payment-status" },
+      { name: "Status Pembayaran", path: "/finance/payments" },
     ],
   },
   {
@@ -63,8 +65,8 @@ const navItems: NavItem[] = [
     icon: <PieChartIcon />,
     subItems: [
       { name: "Laporan Proyek", path: "/project-report" },
-      { name: "Laporan Keuangan", path: "/finance-report" },
-      { name: "Laba Rugi Proyek", path: "/project-profit-loss" },
+      // { name: "Laporan Keuangan", path: "/finance-report" },
+      // { name: "Laba Rugi Proyek", path: "/project-profit-loss" },
       { name: "Laporan Laba Rugi", path: "/reports/income-statement" }, // New link
       { name: "Laporan Neraca", path: "/reports/balance-sheet" }
     ],
@@ -75,7 +77,7 @@ const navItems: NavItem[] = [
     subItems: [
       { name: "Data Klien", path: "/master-data-klien" },
       { name: "Data Produk", path: "/master-data-produk" },
-      { name: "Data Karyawan", path: "/master-data-karyawan" },
+      // { name: "Data Karyawan", path: "/master-data-karyawan" },
     ],
   },
   {
@@ -87,11 +89,11 @@ const navItems: NavItem[] = [
   },
 ];
 
-const othersItems: NavItem[] = [
+const adminOthersItems: NavItem[] = [
   {
-    name: "User Management",
+    name: "Job Order From Customer",
     icon: <UserIcon />,
-    path: "/manage-account"
+    path: "/orders"
   },
   {
     name: "SignOut",
@@ -142,9 +144,68 @@ const othersItems: NavItem[] = [
   // },
 ];
 
-const AppSidebar: React.FC = () => {
+// CLIENT navigation items
+const clientNavItems: NavItem[] = [
+  {
+    icon: <GridIcon />,
+    name: "Dashboard",
+    path: "/client/dashboard",
+  },
+  {
+    name: "Proyek Saya",
+    icon: <TableIcon />,
+    subItems: [
+      { name: "Daftar Proyek", path: "/client/my-projects" },
+      { name: "Progress Proyek", path: "/client/my-projects/progress" },
+    ],
+  },
+  {
+    name: "Penagihan",
+    icon: <ListIcon />,
+    subItems: [
+      { name: "Faktur Saya", path: "/client/finance/invoices" },
+      { name: "Pembayaran Saya", path: "/client/finance/payments" },
+      { name: "Status Pembayaran", path: "/client/payment-status" },
+    ],
+  },
+  {
+    name: "Laporan",
+    icon: <PieChartIcon />,
+    subItems: [
+      { name: "Laporan Proyek", path: "/client/project-report" },
+    ],
+  },
+  {
+    name: "Komunikasi",
+    icon: <ChatIcon />,
+    subItems: [
+      { name: "Pesan", path: "/client/chat" },
+    ],
+  },
+  {
+    name: "Job Order",
+    icon: <TableIcon />,
+    subItems: [
+      { name: "Pesanan Saya", path: "/client/orders" },
+      { name: "Buat Pesanan", path: "/client/orders/tambah" },
+    ],
+  },
+];
+
+const clientOthersItems: NavItem[] = [];
+
+type AppSidebarProps = {
+  userRole?: "ADMIN" | "CLIENT";
+};
+
+const AppSidebar: React.FC<AppSidebarProps> = ({ userRole }) => {
   const { isExpanded, isMobileOpen, isHovered, setIsHovered } = useSidebar();
   const pathname = usePathname();
+  const { user } = useUser();
+
+  const effectiveRole = (userRole || user?.role || "ADMIN") as "ADMIN" | "CLIENT";
+  const currentNavItems = effectiveRole === "CLIENT" ? clientNavItems : adminNavItems;
+  const currentOthersItems = effectiveRole === "CLIENT" ? clientOthersItems : adminOthersItems;
 
   const renderMenuItems = (
     navItems: NavItem[],
@@ -279,7 +340,7 @@ const AppSidebar: React.FC = () => {
     // Check if the current path matches any submenu item
     let submenuMatched = false;
     ["main", "others"].forEach((menuType) => {
-      const items = menuType === "main" ? navItems : othersItems;
+      const items = menuType === "main" ? currentNavItems : currentOthersItems;
       items.forEach((nav, index) => {
         if (nav.subItems) {
           nav.subItems.forEach((subItem) => {
@@ -389,7 +450,7 @@ const AppSidebar: React.FC = () => {
                   <HorizontaLDots />
                 )}
               </h2>
-              {renderMenuItems(navItems, "main")}
+              {renderMenuItems(currentNavItems, "main")}
             </div>
 
             <div className="">
@@ -405,7 +466,7 @@ const AppSidebar: React.FC = () => {
                   <HorizontaLDots />
                 )}
               </h2>
-              {renderMenuItems(othersItems, "others")}
+              {renderMenuItems(currentOthersItems, "others")}
             </div>
           </div>
         </nav>

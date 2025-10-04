@@ -1,8 +1,122 @@
 'use client'
 import React, { useState, useEffect, useCallback } from 'react';
-import { Search, Plus, ChevronLeft, ChevronRight, Filter, Download, Eye, Edit, Trash2, TrendingUp, Activity, Building2, CheckCircle, Clock } from 'lucide-react';
+import { Search, Plus, ChevronLeft, ChevronRight, Filter, Download, Eye, Edit, Trash2, TrendingUp, Activity, Building2, CheckCircle, Clock, XCircle, RotateCw } from 'lucide-react';
+import Button from '@/components/ui/button/Button';
+import { paymentService } from '@/services/payment.service';
+import Badge from '@/components/ui/badge/Badge';
 
-export default function CashReceiptsComponent() {
+interface PaymentItem {
+    id: string;
+    amount: number;
+    method: string;
+    status: string;
+    paymentDate?: string;
+    reference?: string;
+    notes?: string;
+    invoiceId: string;
+}
+
+const PaymentList: React.FC<{ canDelete?: boolean }> = ({ canDelete = true }) => {
+    const [items, setItems] = useState<PaymentItem[]>([]);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState<string | null>(null);
+
+    const load = async () => {
+        setLoading(true);
+        setError(null);
+        try {
+            const data = await paymentService.listPayments();
+            setItems(data);
+        } catch (e: unknown) {
+            setError(e instanceof Error ? e.message : 'Failed to fetch payments');
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    useEffect(() => {
+        load();
+    }, []);
+
+    const handleDelete = async (id: string) => {
+        if (!confirm('Delete this payment?')) return;
+        try {
+            await paymentService.remove(id);
+            await load();
+        } catch (e: unknown) {
+            alert(e instanceof Error ? e.message : 'Failed to delete');
+        }
+    };
+
+    if (loading) return <div>Loading payments...</div>;
+    if (error) return <div className="text-red-500">{error}</div>;
+
+    const getStatusBadgeProps = (status: string): { color: 'warning' | 'success' | 'danger' | 'info' | 'secondary'; label: string } => {
+        const key = status?.toUpperCase?.() || '';
+        switch (key) {
+            case 'PENDING':
+                return { color: 'warning', label: 'PENDING' };
+            case 'COMPLETED':
+                return { color: 'success', label: 'COMPLETED' };
+            case 'FAILED':
+                return { color: 'danger', label: 'FAILED' };
+            case 'REFUNDED':
+                return { color: 'info', label: 'REFUNDED' };
+            case 'PARTIALLY_PAID':
+                return { color: 'secondary', label: 'PARTIALLY PAID' };
+            default:
+                return { color: 'secondary', label: status };
+        }
+    };
+
+    return (
+        <div className="overflow-hidden rounded-xl border border-gray-200 bg-white dark:border-white/[0.05] dark:bg-white/[0.03]">
+            <div className="max-w-full overflow-x-auto">
+                <table className="min-w-full">
+                    <thead className="border-b border-gray-100 dark:border-white/[0.05]">
+                        <tr className="bg-gray-200 dark:bg-gray-700 text-gray-600 dark:text-gray-300 uppercase text-sm leading-normal">
+                            <th className="py-3 px-6 text-left">ID</th>
+                            <th className="py-3 px-6 text-right">Amount</th>
+                            <th className="py-3 px-6 text-left">Method</th>
+                            <th className="py-3 px-6 text-left">Status</th>
+                            <th className="py-3 px-6 text-left">Invoice</th>
+                            <th className="py-3 px-6 text-left">Date</th>
+                            {canDelete && (
+                                <th className="py-3 px-6 text-center">Actions</th>
+                            )}
+                        </tr>
+                    </thead>
+                    <tbody className="text-gray-600 dark:text-gray-200 text-sm font-light">
+                        {items.map((p) => (
+                            <tr key={p.id} className="border-b border-gray-200 dark:border-gray-700 hover:bg-gray-100 dark:hover:bg-gray-600">
+                                <td className="py-3 px-6">{p.id}</td>
+                                <td className="py-3 px-6 text-right">{new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR' }).format(p.amount)}</td>
+                                <td className="py-3 px-6">{p.method}</td>
+                                <td className="py-3 px-6">
+                                    {(() => {
+                                        const { color, label } = getStatusBadgeProps(p.status);
+                                        return <Badge size="sm" color={color}>{label}</Badge>;
+                                    })()}
+                                </td>
+                                <td className="py-3 px-6">{p.invoiceId}</td>
+                                <td className="py-3 px-6">{p.paymentDate ? new Date(p.paymentDate).toLocaleString('id-ID') : '-'}</td>
+                                {canDelete && (
+                                    <td className="py-3 px-6 text-center">
+                                        <Button size="sm" variant="danger" onClick={() => handleDelete(p.id)}>Delete</Button>
+                                    </td>
+                                )}
+                            </tr>
+                        ))}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    );
+};
+
+export default PaymentList;
+
+export function CashReceiptsComponent() {
     const [clientName, setClientName] = useState("");
     const [invoiceNumber, setInvoiceNumber] = useState("");
     const [amount, setAmount] = useState("");
@@ -58,7 +172,7 @@ export default function CashReceiptsComponent() {
     ]);
 
     // Fetch data from API
-    const fetchReceipts = useCallback (async () => {
+    const fetchReceipts = useCallback(async () => {
         setLoading(true);
         try {
             // Using environment variable for API URL
@@ -82,7 +196,7 @@ export default function CashReceiptsComponent() {
         } finally {
             setLoading(false);
         }
-    },[receipts]);
+    }, [receipts]);
 
     // Submit new receipt
     const handleSubmit = async () => {

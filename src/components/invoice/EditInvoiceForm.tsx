@@ -22,11 +22,11 @@ type InvoiceItemField = keyof InvoiceItemForm;
 type FormInputValue = string | number;
 
 // Default invoice item for new items
-const defaultInvoiceItem: Partial<InvoiceItemForm> = { 
-  description: '', 
-  quantity: 1, 
-  unitPrice: 0, 
-  productId: '' 
+const defaultInvoiceItem: Partial<InvoiceItemForm> = {
+  description: '',
+  quantity: 1,
+  unitPrice: 0,
+  productId: ''
 };
 
 export default function EditInvoiceForm({ invoiceId }: EditInvoiceFormProps) {
@@ -81,16 +81,16 @@ export default function EditInvoiceForm({ invoiceId }: EditInvoiceFormProps) {
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>): void => {
     const { name, value } = e.target;
-    setFormData(prev => prev ? { 
-      ...prev, 
-      [name]: name === 'taxRate' || name === 'discount' ? Number(value) : value 
+    setFormData(prev => prev ? {
+      ...prev,
+      [name]: name === 'taxRate' || name === 'discount' ? Number(value) : value
     } : null);
   };
 
   const handleItemChange = (index: number, field: InvoiceItemField, value: FormInputValue): void => {
     const newItems = [...items];
     const item = newItems[index];
-    
+
     if (item) {
       // Type-safe assignment based on field type
       switch (field) {
@@ -110,7 +110,7 @@ export default function EditInvoiceForm({ invoiceId }: EditInvoiceFormProps) {
           (item[field as keyof InvoiceItemForm] as FormInputValue) = value;
           break;
       }
-      
+
       setItems(newItems);
     }
   };
@@ -144,13 +144,13 @@ export default function EditInvoiceForm({ invoiceId }: EditInvoiceFormProps) {
       const payload: UpdateInvoicePayload = {
         ...formData,
         dueDate: formData.dueDate ? new Date(formData.dueDate).toISOString() : undefined,
-        items: items.map(item => ({ 
-          ...item, 
-          quantity: Number(item.quantity), 
-          unitPrice: Number(item.unitPrice) 
+        items: items.map(item => ({
+          ...item,
+          quantity: Number(item.quantity),
+          unitPrice: Number(item.unitPrice)
         })),
       };
-      
+
       await invoiceService.updateInvoice(invoiceId, payload);
       alert('Invoice updated successfully!');
       router.push('/finance/invoices');
@@ -180,33 +180,33 @@ export default function EditInvoiceForm({ invoiceId }: EditInvoiceFormProps) {
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <div>
           <label className="block mb-2 text-sm font-medium">Title</label>
-          <input 
-            name="title" 
-            value={formData.title || ''} 
-            onChange={handleChange} 
-            placeholder="Invoice Title" 
-            className="w-full p-2 border rounded dark:bg-gray-700" 
-            required 
+          <input
+            name="title"
+            value={formData.title || ''}
+            onChange={handleChange}
+            placeholder="Invoice Title"
+            className="w-full p-2 border rounded dark:bg-gray-700"
+            required
           />
         </div>
         <div>
           <label className="block mb-2 text-sm font-medium">Due Date</label>
-          <input 
-            name="dueDate" 
-            type="date" 
-            value={formData.dueDate || ''} 
-            onChange={handleChange} 
-            className="w-full p-2 border rounded dark:bg-gray-700" 
-            required 
+          <input
+            name="dueDate"
+            type="date"
+            value={formData.dueDate || ''}
+            onChange={handleChange}
+            className="w-full p-2 border rounded dark:bg-gray-700"
+            required
           />
         </div>
         <div>
           <label className="block mb-2 text-sm font-medium">Client</label>
-          <select 
-            name="clientId" 
-            value={formData.clientId || ''} 
-            onChange={handleChange} 
-            className="w-full p-2 border rounded dark:bg-gray-700" 
+          <select
+            name="clientId"
+            value={formData.clientId || ''}
+            onChange={handleChange}
+            className="w-full p-2 border rounded dark:bg-gray-700"
             required
           >
             <option value="" disabled>Select a Client</option>
@@ -217,10 +217,10 @@ export default function EditInvoiceForm({ invoiceId }: EditInvoiceFormProps) {
         </div>
         <div>
           <label className="block mb-2 text-sm font-medium">Project (Optional)</label>
-          <select 
-            name="projectId" 
-            value={formData.projectId || ''} 
-            onChange={handleChange} 
+          <select
+            name="projectId"
+            value={formData.projectId || ''}
+            onChange={handleChange}
             className="w-full p-2 border rounded dark:bg-gray-700"
           >
             <option value="">No Associated Project</option>
@@ -231,40 +231,40 @@ export default function EditInvoiceForm({ invoiceId }: EditInvoiceFormProps) {
         </div>
         <div>
           <label className="block mb-2 text-sm font-medium">Tax Rate (%)</label>
-          <input 
-            name="taxRate" 
-            type="number" 
-            step="0.01" 
-            value={formData.taxRate || 0} 
-            onChange={handleChange} 
-            placeholder="0.11" 
-            className="w-full p-2 border rounded dark:bg-gray-700" 
+          <input
+            name="taxRate"
+            type="number"
+            step="0.01"
+            value={formData.taxRate || 0}
+            onChange={handleChange}
+            placeholder="0.11"
+            className="w-full p-2 border rounded dark:bg-gray-700"
           />
         </div>
         <div>
           <label className="block mb-2 text-sm font-medium">Discount</label>
-          <input 
-            name="discount" 
-            type="number" 
-            value={formData.discount || 0} 
-            onChange={handleChange} 
-            placeholder="0" 
-            className="w-full p-2 border rounded dark:bg-gray-700" 
+          <input
+            name="discount"
+            type="number"
+            value={formData.discount || 0}
+            onChange={handleChange}
+            placeholder="0"
+            className="w-full p-2 border rounded dark:bg-gray-700"
           />
         </div>
         <div>
           <label className="block mb-2 text-sm font-medium">Status</label>
-          <select 
-            name="status" 
-            value={formData.status || ''} 
-            onChange={handleChange} 
+          <select
+            name="status"
+            value={formData.status || ''}
+            onChange={handleChange}
             className="w-full p-2 border rounded dark:bg-gray-700"
           >
-            <option value="PENDING">Pending</option>
-            <option value="SENT">Sent</option>
-            <option value="PAID">Paid</option>
-            <option value="OVERDUE">Overdue</option>
-            <option value="CANCELLED">Cancelled</option>
+            <option value="DRAFT">DRAFT</option>
+            <option value="UNPAID">UNPAID</option>
+            <option value="PAID">PAID</option>
+            <option value="OVERDUE">OVERDUE</option>
+            <option value="CANCELLED">CANCELLED</option>
           </select>
         </div>
       </div>
@@ -275,45 +275,45 @@ export default function EditInvoiceForm({ invoiceId }: EditInvoiceFormProps) {
           <div key={index} className="grid grid-cols-1 md:grid-cols-12 gap-4 items-end">
             <div className="col-span-4">
               <label className="block mb-2 text-sm font-medium">Description</label>
-              <input 
-                name="description" 
-                value={item.description || ''} 
-                onChange={(e) => handleItemChange(index, 'description', e.target.value)} 
-                placeholder="Item Description" 
-                className="w-full p-2 border rounded dark:bg-gray-700" 
-                required 
+              <input
+                name="description"
+                value={item.description || ''}
+                onChange={(e) => handleItemChange(index, 'description', e.target.value)}
+                placeholder="Item Description"
+                className="w-full p-2 border rounded dark:bg-gray-700"
+                required
               />
             </div>
             <div className="col-span-2">
               <label className="block mb-2 text-sm font-medium">Quantity</label>
-              <input 
-                name="quantity" 
-                type="number" 
-                value={item.quantity || 0} 
-                onChange={(e) => handleQuantityChange(index, e.target.value)} 
-                placeholder="1" 
-                className="w-full p-2 border rounded dark:bg-gray-700" 
-                required 
+              <input
+                name="quantity"
+                type="number"
+                value={item.quantity || 0}
+                onChange={(e) => handleQuantityChange(index, e.target.value)}
+                placeholder="1"
+                className="w-full p-2 border rounded dark:bg-gray-700"
+                required
               />
             </div>
             <div className="col-span-3">
               <label className="block mb-2 text-sm font-medium">Unit Price</label>
-              <input 
-                name="unitPrice" 
-                type="number" 
-                value={item.unitPrice || 0} 
-                onChange={(e) => handleUnitPriceChange(index, e.target.value)} 
-                placeholder="0" 
-                className="w-full p-2 border rounded dark:bg-gray-700" 
-                required 
+              <input
+                name="unitPrice"
+                type="number"
+                value={item.unitPrice || 0}
+                onChange={(e) => handleUnitPriceChange(index, e.target.value)}
+                placeholder="0"
+                className="w-full p-2 border rounded dark:bg-gray-700"
+                required
               />
             </div>
             <div className="col-span-2">
               <label className="block mb-2 text-sm font-medium">Product (Optional)</label>
-              <select 
-                name="productId" 
-                value={item.productId || ''} 
-                onChange={(e) => handleItemChange(index, 'productId', e.target.value)} 
+              <select
+                name="productId"
+                value={item.productId || ''}
+                onChange={(e) => handleItemChange(index, 'productId', e.target.value)}
                 className="w-full p-2 border rounded dark:bg-gray-700"
               >
                 <option value="">Select Product</option>
@@ -323,9 +323,9 @@ export default function EditInvoiceForm({ invoiceId }: EditInvoiceFormProps) {
               </select>
             </div>
             <div className="col-span-1 flex justify-end">
-              <Button 
-                type="button" 
-                onClick={() => removeItem(index)} 
+              <Button
+                type="button"
+                onClick={() => removeItem(index)}
                 className="bg-red-500 hover:bg-red-600 text-white"
               >
                 Remove
@@ -334,9 +334,9 @@ export default function EditInvoiceForm({ invoiceId }: EditInvoiceFormProps) {
           </div>
         ))}
       </div>
-      <Button 
-        type="button" 
-        onClick={addItem} 
+      <Button
+        type="button"
+        onClick={addItem}
         className="bg-blue-500 hover:bg-blue-600 text-white"
       >
         Add Item
@@ -345,9 +345,9 @@ export default function EditInvoiceForm({ invoiceId }: EditInvoiceFormProps) {
       {error && <p className="text-red-500 mt-2 text-center">{error}</p>}
 
       <div className="mt-6 flex justify-end gap-4">
-        <Button 
-          type="button" 
-          onClick={() => router.back()} 
+        <Button
+          type="button"
+          onClick={() => router.back()}
           className="bg-gray-300 hover:bg-gray-400 text-black"
         >
           Cancel

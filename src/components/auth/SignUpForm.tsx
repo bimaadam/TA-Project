@@ -7,6 +7,7 @@ import Label from "@/components/form/Label";
 import { ChevronLeftIcon, EyeCloseIcon, EyeIcon } from "@/icons";
 import Link from "next/link";
 import React, { useState } from "react";
+import Button from "../ui/button/Button";
 
 export default function SignUpForm() {
   const router = useRouter();
@@ -88,7 +89,7 @@ export default function SignUpForm() {
               Sign Up
             </h1>
             <p className="text-sm text-gray-500 dark:text-gray-400">
-              Enter your email and password to sign up!
+              Masukkan email perusahaan dan kata sandi untuk mendaftar!
             </p>
           </div>
 
@@ -154,47 +155,30 @@ export default function SignUpForm() {
           {/* Form Input */}
           <form onSubmit={handleSubmit}>
             <div className="space-y-5">
-              <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
-                {/* <!-- First Name --> */}
-                <div className="sm:col-span-1">
-                  <Label>
-                    First Name<span className="text-error-500">*</span>
-                  </Label>
-                  <Input
-                    type="text"
-                    defaultValue={formdata.firstName}
-                    name="firstName"
-                    onChange={handleChange}
-                    placeholder="Enter your first name"
-                  />
-                </div>
-
-                {/* Last Name */}
-                <div className="sm:col-span-1">
-                  <Label>
-                    Last Name<span className="text-error-500">*</span>
-                  </Label>
-                  <Input
-                    type="text"
-                    name="lastName"
-                    defaultValue={formdata.lastName}
-                    onChange={handleChange}
-                    placeholder="Enter your last name"
-                  />
-                </div>
+              <div>
+                <Label>
+                  Nama Perusahaan<span className="text-error-500">*</span>
+                </Label>
+                <Input
+                  type="text"
+                  defaultValue={formdata.firstName}
+                  name="firstName"
+                  onChange={handleChange}
+                  placeholder="Masukkan nama perusahaan"
+                />
               </div>
 
               {/* Email */}
               <div>
                 <Label>
-                  Email Address<span className="text-error-500">*</span>
+                  Email Perusahaan<span className="text-error-500">*</span>
                 </Label>
                 <Input
                   type="email"
                   name="email"
                   defaultValue={formdata.email}
                   onChange={handleChange}
-                  placeholder="Enter your email"
+                  placeholder="Masukkan email perusahaan"
                 />
               </div>
 
@@ -256,9 +240,9 @@ export default function SignUpForm() {
 
               {/* Submit Button */}
               <div>
-                <button type="submit" className="flex items-center justify-center w-full px-4 py-3 text-sm font-medium text-white transition rounded-lg bg-brand-500 shadow-theme-xs hover:bg-brand-600">
+                <Button  type="submit" className="flex items-center justify-center w-full px-4 py-3 text-sm font-medium text-white transition rounded-lg bg-brand-500 shadow-theme-xs hover:bg-brand-600">
                   {loading ? "Loading..." : "Sign Up"}
-                </button>
+                </Button>
               </div>
             </div>
           </form>

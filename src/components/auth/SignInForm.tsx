@@ -33,8 +33,21 @@ export default function SignInForm() {
 
     // kasih waktu 4 detik baru redirect
     await fetchUser();
+    const userRole = response.data.user.role;
+
+    let redirectPath = "/signin"; // Default to signin for unknown roles
+    if (userRole === "CLIENT") {
+      redirectPath = "/dashboard";
+    } else if (userRole === "ADMIN") {
+      redirectPath = "/";
+    } else {
+      // If role is neither CLIENT nor ADMIN, log out and redirect to signin
+      authService.removeToken();
+      alert("Akses ditolak: Peran tidak dikenali.");
+    }
+
     setTimeout(() => {
-      router.push("/");
+      router.push(redirectPath);
       setLoading(false); // loading baru false setelah delay
     }, 2000);
 
@@ -72,7 +85,7 @@ export default function SignInForm() {
               Sign In
             </h1>
             <p className="text-sm text-gray-500 dark:text-gray-400">
-              Enter your email and password to sign in
+              Masukkan email perusahaan dan kata sandi untuk masuk
             </p>
           </div>
           <div>
@@ -132,9 +145,9 @@ export default function SignInForm() {
               <div className="space-y-6">
                 <div>
                   <Label>
-                    Email <span className="text-error-500">*</span>{" "}
+                    Email Perusahaan <span className="text-error-500">*</span>{" "}
                   </Label>
-                  <Input name="email" placeholder="info@gmail.com" defaultValue={formData.email} onChange={handleChange} type="email" />
+                  <Input name="email" placeholder="info@perusahaan.com" defaultValue={formData.email} onChange={handleChange} type="email" />
                 </div>
                 <div>
                   <Label>

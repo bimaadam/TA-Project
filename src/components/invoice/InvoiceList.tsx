@@ -1,5 +1,4 @@
-"use client";
-
+"use client"
 import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
 import Button from '@/components/ui/button/Button';
@@ -7,8 +6,10 @@ import { invoiceService, Invoice } from '@/services/invoice.service';
 import { clientService } from '@/services/client.service';
 import { projectService } from '@/services/project.service';
 import Badge from "@/components/ui/badge/Badge";
+import { useUser } from '@/context/UserContext'; // Import useUser
 
 export default function InvoiceList() {
+  const { user, isReady } = useUser(); // Get user and isReady from context
   const [invoices, setInvoices] = useState<Invoice[]>([]);
   const [clients, setClients] = useState<Map<string, string>>(new Map());
   const [projects, setProjects] = useState<Map<string, string>>(new Map());
@@ -18,11 +19,9 @@ export default function InvoiceList() {
   const fetchData = async () => {
     setLoading(true);
     try {
-      const [invoiceResponse, clientResponse, projectResponse] = await Promise.all([
-        invoiceService.getInvoices(),
-        clientService.getClients(),
-        projectService.getProjects(),
-      ]);
+      let invoiceResponse: Invoice[];
+      const clientResponse = await clientService.getClients();
+      const projectResponse = await projectService.getProjects();
 
       const clientMap = new Map<string, string>();
       clientResponse.data.forEach(client => clientMap.set(client.id, client.fullName));
@@ -32,21 +31,29 @@ export default function InvoiceList() {
       projectResponse.forEach(project => projectMap.set(project.id, project.name));
       setProjects(projectMap);
 
+      if (user?.role === "CLIENT" && user?.id) {
+        invoiceResponse = await invoiceService.getInvoicesByClientId(user.id);
+      } else {
+        invoiceResponse = await invoiceService.getInvoices();
+      }
+
       setInvoices(invoiceResponse);
     } catch (err: unknown) {
       if (err instanceof Error) {
         setError(err.message)
       } else {
         setError("failed to fetch income data")
-      } 
+      }
     } finally {
       setLoading(false)
     }
   }
 
   useEffect(() => {
-    fetchData();
-  }, []);
+    if (isReady) { // Only fetch data when user context is ready
+      fetchData();
+    }
+  }, [user, isReady]); // Re-run when user or isReady changes
 
   const handleDelete = async (invoiceId: string) => {
     if (window.confirm('Are you sure you want to delete this invoice?')) {
@@ -55,9 +62,9 @@ export default function InvoiceList() {
         fetchData(); // Refresh list after delete
       } catch (err: unknown) {
         if (err instanceof Error) {
-           alert(`Error: ${err.message}`);
+          alert(`Error: ${err.message}`);
         }
-      } 
+      }
     }
   };
 
@@ -72,11 +79,14 @@ export default function InvoiceList() {
   return (
     <div>
       <div className="flex justify-end mb-4">
-        <Link href="/finance/invoices/tambah">
-          <Button>Add Invoice</Button>
-        </Link>
+        {/* Only show Add Invoice button for ADMIN */}
+        {user?.role === "ADMIN" && (
+          <Link href="/finance/invoices/tambah">
+            <Button>Add Invoice</Button>
+          </Link>
+        )}
       </div>
-      
+
       {/* Invoice Table */}
       <div className="overflow-hidden rounded-xl border border-gray-200 bg-white dark:border-white/[0.05] dark:bg-white/[0.03]">
         <div className="max-w-full overflow-x-auto">
@@ -108,11 +118,15 @@ export default function InvoiceList() {
                     </Badge>
                   </td>
                   <td className="py-3 px-6 text-center">
-                      <div className="flex item-center justify-center">
-                          <Link href={`/data-invoice/details-invoice/${invoice.id}`}><Button size="sm" variant="outline" className="mr-2">View</Button></Link>
-                          <Link href={`/finance/invoices/edit/${invoice.id}`}><Button size="sm" variant="outline" className="mr-2">Edit</Button></Link>
-                          <Button size="sm" variant="danger" onClick={() => handleDelete(invoice.id)}>Delete</Button>
-                      </div>
+                    <div className="flex item-center justify-center">
+                      <Link href={user?.role === "CLIENT" ? `/client/data-invoice/details-invoice/${invoice.id}` : `/data-invoice/details-invoice/${invoice.id}`}><Button size="sm" variant="outline" className="mr-2">View</Button></Link>
+                      {user?.role === "ADMIN" && (
+                        <Link href={`/finance/invoices/edit/${invoice.id}`}><Button size="sm" variant="outline" className="mr-2">Edit</Button></Link>
+                      )}
+                      {user?.role === "ADMIN" && (
+                        <Button size="sm" variant="danger" onClick={() => handleDelete(invoice.id)}>Delete</Button>
+                      )}
+                    </div>
                   </td>
                 </tr>
               ))}

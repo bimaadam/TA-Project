@@ -4,6 +4,7 @@ const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001';
 
 // Interface for the Project object
 export interface Project {
+  invoiceId: any;
   id: string;
   fullName: string;
   name: string;
@@ -88,6 +89,23 @@ export const projectService = {
     });
 
     if (!response.ok) throw new Error('Failed to fetch project');
+    return response.json();
+  },
+
+  // Fetch projects by client ID
+  async getProjectsByClientId(clientId: string): Promise<Project[]> {
+    const token = authService.getToken();
+    if (!token) throw new Error('No access token found');
+
+    const response = await fetch(`${API_BASE_URL}/projects?clientId=${clientId}`, {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`,
+      },
+    });
+
+    if (!response.ok) throw new Error('Failed to fetch projects for client');
     return response.json();
   },
 

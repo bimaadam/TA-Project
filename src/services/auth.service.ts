@@ -47,6 +47,7 @@ export const authService = {
     try {
       const response = await fetch(`${API_BASE_URL}/auth/login`, {
         method: 'POST',
+        credentials: 'include',
         headers: {
           'Content-Type': 'application/json',
         },
@@ -69,7 +70,6 @@ export const authService = {
     try {
       const response = await fetch(`${API_BASE_URL}/auth/register`, {
         method: 'POST',
-        credentials: 'include',
         headers: {
           'Content-Type': 'application/json',
         },
@@ -89,26 +89,26 @@ export const authService = {
   },
 
   async getProfile(): Promise<ProfileResponse> {
-  const token = this.getToken();
-  if (!token) throw new Error('No access token found');
+    const token = this.getToken();
+    if (!token) throw new Error('No access token found');
 
-  const response = await fetch(`${API_BASE_URL}/auth/profile`, {
-    method: 'GET',
-    credentials: 'include',
-    headers: {
-      'Authorization': `Bearer ${token}`,
-      'Cache-Control': 'no-cache',
-      'Pragma': 'no-cache',
-    },
-  });
+    const response = await fetch(`${API_BASE_URL}/auth/profile`, {
+      method: 'GET',
+      credentials: 'include',
+      headers: {
+        'Authorization': `Bearer ${token}`,
+        'Cache-Control': 'no-cache',
+        'Pragma': 'no-cache',
+      },
+    });
 
-  if (!response.ok) {
-    const errorData = await response.json().catch(() => ({}));
-    throw new Error(errorData.message || `Failed to fetch profile (${response.status})`);
-  }
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({}));
+      throw new Error(errorData.message || `Failed to fetch profile (${response.status})`);
+    }
 
-  const data = await response.json();
-  return data.user; // <-- balikin langsung user clean
+    const data = await response.json();
+    return data.user; // <-- balikin langsung user clean
   },
 
   // Fungsi untuk menyimpan token (akan diimplementasikan nanti)
@@ -125,10 +125,16 @@ export const authService = {
     }
     return token;
   },
-
-  // Fungsi untuk menghapus token (akan diimplementasikan nanti)
+  async logout() {
+    await fetch(`${API_BASE_URL}/auth/logout`, {
+      method: 'POST',
+      credentials: 'include'
+    });
+    localStorage.removeItem('accessToken');
+    Cookies.remove('accessToken', { path: '/' });
+  },
   removeToken() {
     localStorage.removeItem('accessToken');
-    Cookies.remove('accessToken', { path: '/' }); // Also remove from cookie
-  },
-};
+    Cookies.remove('accessToken');
+  }
+}

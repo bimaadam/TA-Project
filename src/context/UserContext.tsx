@@ -74,13 +74,12 @@ export const UserProvider: React.FC<UserProviderProps> = ({ children }) => {
 }, [router])
 
 
-  const logout = () => {
-    authService.removeToken();
-    setUser(null);
-    setTimeout(() => {
-      router.push('/')
-    }, 2000)
-  };
+  const logout = async () => {
+  await authService.logout();
+  setUser(null);
+  router.push('/signin');
+};
+
 
   useEffect(() => {
     // Fetch user on initial load if token exists

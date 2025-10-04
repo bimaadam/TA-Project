@@ -18,7 +18,7 @@ export default function AdminLayout({
   const pathname = usePathname();
   const { user, loading, isReady } = useUser(); // Consume user context, added isReady
 
-  
+
 
   useEffect(() => {
     const publicPaths = ['/signin', 'signup', '/reset-pwd']
@@ -39,7 +39,15 @@ export default function AdminLayout({
     if (!user && !publicPaths.includes(pathname)) {
       setTimeout(() => {
         router.push('/signin')
-      }, 9000)
+      }, 900)
+      return;
+    }
+
+    // RBAC: Only ADMIN may access admin layout
+    if (user && user.role !== 'ADMIN') {
+      // Send CLIENTs to their dashboard, others to home
+      const fallback = user.role === 'CLIENT' ? '/client/dashboard' : '/';
+      router.replace(fallback);
       return;
     }
 
@@ -50,17 +58,17 @@ export default function AdminLayout({
   const mainContentMargin = isMobileOpen
     ? "ml-0"
     : isExpanded || isHovered
-      ? "lg:ml-[290px]"
+      ? "lg:ml-[300px]"
       : "lg:ml-[90px]";
 
   // Show a loading state while user data is being fetched or UserProvider is not ready
   if (loading || !isReady) {
-  return (
-    <div className="flex items-center justify-center min-h-screen bg-gray-50">
-      <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
-    </div>
-  );
-}
+    return (
+      <div className="flex items-center justify-center min-h-screen bg-gray-50">
+        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
+      </div>
+    );
+  }
 
 
   return (

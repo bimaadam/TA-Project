@@ -9,6 +9,8 @@ import { projectService, Project } from "@/services/project.service";
 import Button from "@/components/ui/button/Button";
 import jsPDF from "jspdf";
 import html2canvas from "html2canvas";
+import { paymentService } from "@/services/payment.service";
+import { useUser } from "@/context/UserContext";
 
 interface PreviewInvoiceProps {
   invoiceId: string;
@@ -16,12 +18,19 @@ interface PreviewInvoiceProps {
 
 export default function PreviewInvoice({ invoiceId }: PreviewInvoiceProps) {
   const router = useRouter();
+  const { user } = useUser();
   const [invoice, setInvoice] = useState<Invoice | null>(null);
   const [client, setClient] = useState<Client | null>(null);
   const [project, setProject] = useState<Project | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [isExporting, setIsExporting] = useState(false);
+  const [isPaying, setIsPaying] = useState(false);
+  const [showPaymentModal, setShowPaymentModal] = useState(false);
+  const [paymentMethod, setPaymentMethod] = useState('BANK_TRANSFER');
+  const [reference, setReference] = useState('');
+  const [notes, setNotes] = useState('');
+  const [paymentProof, setPaymentProof] = useState<File | null>(null);
 
   const invoiceRef = useRef<HTMLDivElement>(null);
 
@@ -41,15 +50,15 @@ export default function PreviewInvoice({ invoiceId }: PreviewInvoiceProps) {
         setClient(clientData);
         setProject(projectData);
       } catch (err: unknown) {
-      if (err instanceof Error) {
-        setError(err.message);
-      } else {
-        setError('Failed to fetch Invoice data');
+        if (err instanceof Error) {
+          setError(err.message);
+        } else {
+          setError('Failed to fetch Invoice data');
+        }
+      } finally {
+        setLoading(false);
       }
-    } finally {
-      setLoading(false);
-    }
-  };
+    };
 
     fetchData();
   }, [invoiceId]);
@@ -57,53 +66,74 @@ export default function PreviewInvoice({ invoiceId }: PreviewInvoiceProps) {
   // Enhanced PDF Export with better color handling
   const exportPDF = async () => {
     if (!invoiceRef.current) return;
-    
+
     setIsExporting(true);
     try {
       const canvas = await html2canvas(invoiceRef.current, {
-  scale: 2,
-  useCORS: true,
-  allowTaint: true,
-  backgroundColor: '#ffffff',
-  onclone: (clonedDoc) => {
-    const allElements = clonedDoc.querySelectorAll('*');
-    allElements.forEach((element) => {
-      if (element instanceof HTMLElement) {
-        const computedStyle = window.getComputedStyle(element);
+        scale: 2,
+        useCORS: true,
+        allowTaint: true,
+        backgroundColor: '#ffffff',
+        onclone: (clonedDoc) => {
+          const getView = clonedDoc.defaultView || window;
+          const createCtx = () => {
+            const cnv = clonedDoc.createElement('canvas') as HTMLCanvasElement;
+            return cnv.getContext('2d');
+          };
+          const ctx = createCtx();
+          const normalizeColor = (value: string | null) => {
+            if (!value) return '';
+            try {
+              if (ctx) {
+                // Canvas normalizes any valid CSS color to rgb/rgba()
+                (ctx as CanvasRenderingContext2D).fillStyle = value as unknown as string;
+                const normalized = (ctx as CanvasRenderingContext2D).fillStyle as unknown as string;
+                if (normalized && typeof normalized === 'string') return normalized;
+              }
+            } catch { }
+            // Fallbacks for unsupported color spaces
+            if (value.includes('oklab') || value.includes('oklch')) {
+              // Sensible defaults
+              if (value.includes(' / ') || value.includes('%')) return 'rgba(0,0,0,1)';
+              return '#000000';
+            }
+            return value;
+          };
 
-        if (
-          computedStyle.color &&
-          (computedStyle.color.includes('oklab') || computedStyle.color.includes('oklch'))
-        ) {
-          element.style.color = '#000000';
-        }
+          const all = clonedDoc.querySelectorAll('*');
+          all.forEach((el) => {
+            if (!(el instanceof clonedDoc.defaultView!.HTMLElement)) return;
+            const cs = getView.getComputedStyle(el);
 
-        if (
-          computedStyle.backgroundColor &&
-          (computedStyle.backgroundColor.includes('oklab') || computedStyle.backgroundColor.includes('oklch'))
-        ) {
-          element.style.backgroundColor = '#ffffff';
-        }
+            const color = normalizeColor(cs.color);
+            if (color) el.style.color = color;
 
-        if (
-          computedStyle.borderColor &&
-          (computedStyle.borderColor.includes('oklab') || computedStyle.borderColor.includes('oklch'))
-        ) {
-          element.style.borderColor = '#e5e7eb';
-        }
-      }
-    });
-  },
-});
+            const bg = normalizeColor(cs.backgroundColor);
+            if (bg) el.style.backgroundColor = bg;
+
+            // Borders (all sides)
+            const borderColor = normalizeColor(cs.borderColor);
+            if (borderColor) el.style.borderColor = borderColor;
+            const bt = normalizeColor(cs.borderTopColor);
+            if (bt) el.style.borderTopColor = bt;
+            const br = normalizeColor(cs.borderRightColor);
+            if (br) el.style.borderRightColor = br;
+            const bb = normalizeColor(cs.borderBottomColor);
+            if (bb) el.style.borderBottomColor = bb;
+            const bl = normalizeColor(cs.borderLeftColor);
+            if (bl) el.style.borderLeftColor = bl;
+          });
+        },
+      });
 
 
       const imgData = canvas.toDataURL('image/png');
       const pdf = new jsPDF('p', 'mm', 'a4');
-      
+
       const imgProps = pdf.getImageProperties(imgData);
       const pdfWidth = pdf.internal.pageSize.getWidth();
       const pdfHeight = (imgProps.height * pdfWidth) / imgProps.width;
-      
+
       // Handle multiple pages if content is too long
       if (pdfHeight > pdf.internal.pageSize.getHeight()) {
         const pages = Math.ceil(pdfHeight / pdf.internal.pageSize.getHeight());
@@ -126,8 +156,8 @@ export default function PreviewInvoice({ invoiceId }: PreviewInvoiceProps) {
   };
 
   const formatCurrency = (amount: number) => {
-    return new Intl.NumberFormat('id-ID', { 
-      style: 'currency', 
+    return new Intl.NumberFormat('id-ID', {
+      style: 'currency',
       currency: 'IDR',
       minimumFractionDigits: 0,
       maximumFractionDigits: 0
@@ -150,7 +180,7 @@ export default function PreviewInvoice({ invoiceId }: PreviewInvoiceProps) {
       <div className="flex items-center justify-center min-h-screen">
         <div className="text-center p-6 bg-red-50 border border-red-200 rounded-lg">
           <p className="text-red-600 font-medium">Error: {error}</p>
-          <button 
+          <button
             onClick={() => router.back()}
             className="mt-4 px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700 transition-colors"
           >
@@ -166,7 +196,7 @@ export default function PreviewInvoice({ invoiceId }: PreviewInvoiceProps) {
       <div className="flex items-center justify-center min-h-screen">
         <div className="text-center p-6 bg-gray-50 border border-gray-200 rounded-lg">
           <p className="text-gray-600">Invoice or client data not found.</p>
-          <button 
+          <button
             onClick={() => router.back()}
             className="mt-4 px-4 py-2 bg-gray-600 text-white rounded hover:bg-gray-700 transition-colors"
           >
@@ -184,6 +214,54 @@ export default function PreviewInvoice({ invoiceId }: PreviewInvoiceProps) {
   const totalAfterDiscount = subtotal - (invoice.discount || 0);
   const taxAmount = totalAfterDiscount * (invoice.taxRate || 0);
   const finalTotal = totalAfterDiscount + taxAmount;
+  const amountPaid = invoice.amount || 0;
+  const dueBalance = Math.max(finalTotal - amountPaid, 0);
+  const isClient = user?.role === "CLIENT";
+  const isPayable = isClient && dueBalance > 0 && (invoice.status?.toUpperCase?.() !== 'PAID');
+
+  type SnapApi = {
+    pay: (
+      token: string,
+      callbacks?: {
+        onSuccess?: () => void;
+        onPending?: () => void;
+        onClose?: () => void;
+        onError?: () => void;
+      }
+    ) => void
+  };
+
+  const handlePay = async () => {
+    try {
+      setIsPaying(true);
+
+      // Create a manual payment record
+      const payment = await paymentService.createManualPayment({
+        invoiceId: invoice.id,
+        amount: dueBalance,
+        method: paymentMethod,
+        reference: reference || undefined,
+        notes: notes || undefined,
+        paymentDate: new Date().toISOString()
+      });
+
+      // If payment proof is uploaded, handle it
+      if (paymentProof) {
+        // TODO: Implement file upload to your backend
+        // This is a placeholder - you'll need to implement the actual file upload
+        console.log('Payment proof to upload:', paymentProof);
+      }
+
+      alert('Pembayaran berhasil diajukan. Silakan tunggu konfirmasi admin.');
+      router.refresh();
+    } catch (e: unknown) {
+      const msg = e instanceof Error ? e.message : 'Gagal memproses pembayaran';
+      alert(msg);
+    } finally {
+      setIsPaying(false);
+      setShowPaymentModal(false);
+    }
+  };
 
   return (
     <div className="max-w-6xl mx-auto px-4 py-8">
@@ -191,6 +269,101 @@ export default function PreviewInvoice({ invoiceId }: PreviewInvoiceProps) {
       <div className="flex justify-between items-center mb-8">
         <h1 className="text-2xl font-bold text-gray-800">Invoice Preview</h1>
         <div className="flex gap-3">
+          {isPayable && (
+            <>
+              <Button
+                onClick={() => setShowPaymentModal(true)}
+                disabled={isPaying}
+                className="px-6 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                Bayar Sekarang
+              </Button>
+
+              {/* Payment Modal */}
+              {showPaymentModal && (
+                <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+                  <div className="bg-white rounded-lg p-6 w-full max-w-md">
+                    <h2 className="text-xl font-bold mb-4">Konfirmasi Pembayaran</h2>
+
+                    <div className="mb-4">
+                      <h3 className="font-medium mb-2">Instruksi Pembayaran:</h3>
+                      <div className="bg-gray-50 p-4 rounded-lg mb-4">
+                        <p className="font-medium">Bank Transfer</p>
+                        <p>Bank: BCA (Bank Central Asia)</p>
+                        <p>No. Rekening: 1234 5678 9012 3456</p>
+                        <p>Atas Nama: PT. Nama Perusahaan Anda</p>
+                        <p className="font-bold mt-2">Jumlah: {new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR' }).format(totalAfterDiscount)}</p>
+                      </div>
+
+                      <div className="space-y-4">
+                        <div>
+                          <label className="block text-sm font-medium mb-1">Metode Pembayaran</label>
+                          <select
+                            value={paymentMethod}
+                            onChange={(e) => setPaymentMethod(e.target.value)}
+                            className="w-full p-2 border rounded"
+                          >
+                            <option value="BANK_TRANSFER">Transfer Bank</option>
+                            <option value="CASH">Tunai</option>
+                            <option value="OTHER">Lainnya</option>
+                          </select>
+                        </div>
+
+                        <div>
+                          <label className="block text-sm font-medium mb-1">Nomor Referensi (opsional)</label>
+                          <input
+                            type="text"
+                            value={reference}
+                            onChange={(e) => setReference(e.target.value)}
+                            placeholder="Contoh: 1234567890"
+                            className="w-full p-2 border rounded"
+                          />
+                        </div>
+
+                        <div>
+                          <label className="block text-sm font-medium mb-1">Catatan (opsional)</label>
+                          <textarea
+                            value={notes}
+                            onChange={(e) => setNotes(e.target.value)}
+                            placeholder="Tambahkan catatan jika diperlukan"
+                            className="w-full p-2 border rounded"
+                            rows={2}
+                          />
+                        </div>
+
+                        <div>
+                          <label className="block text-sm font-medium mb-1">Unggah Bukti Pembayaran</label>
+                          <input
+                            type="file"
+                            accept="image/*,.pdf"
+                            onChange={(e) => setPaymentProof(e.target.files?.[0] || null)}
+                            className="w-full p-2 border rounded"
+                          />
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="flex justify-end gap-3">
+                      <button
+                        onClick={() => setShowPaymentModal(false)}
+                        disabled={isPaying}
+                        className="px-4 py-2 text-gray-600 hover:bg-gray-100 rounded-lg disabled:opacity-50"
+                      >
+                        Batal
+                      </button>
+                      <button
+                        onClick={handlePay}
+                        disabled={isPaying}
+                        className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50"
+                      >
+                        {isPaying ? 'Mengirim...' : 'Konfirmasi Pembayaran'}
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              )}
+            </>
+          )}
           <Button
             onClick={() => router.back()}
             className="px-6 py-2 bg-gray-200 hover:bg-gray-300 text-gray-800 border border-gray-300 rounded-lg transition-colors"
@@ -208,7 +381,7 @@ export default function PreviewInvoice({ invoiceId }: PreviewInvoiceProps) {
       </div>
 
       {/* Invoice Container */}
-      <div 
+      <div
         ref={invoiceRef}
         className="bg-white border border-gray-200 rounded-lg shadow-lg p-8"
         style={{ backgroundColor: '#ffffff' }} // Explicit background for PDF
@@ -216,10 +389,10 @@ export default function PreviewInvoice({ invoiceId }: PreviewInvoiceProps) {
         {/* Header */}
         <div className="flex justify-between items-start mb-8">
           <div>
-            <Image 
-              src="/images/logo/AJT.png" 
-              alt="Company Logo" 
-              width={120} 
+            <Image
+              src="/images/logo/AJT.png"
+              alt="Company Logo"
+              width={120}
               height={120}
               className="mb-4"
             />
@@ -272,11 +445,10 @@ export default function PreviewInvoice({ invoiceId }: PreviewInvoiceProps) {
             )}
             <div className="flex justify-between">
               <span className="font-medium text-gray-800">Status:</span>
-              <span className={`px-2 py-1 rounded text-xs font-medium ${
-                invoice.status === 'paid' ? 'bg-green-100 text-green-800' :
+              <span className={`px-2 py-1 rounded text-xs font-medium ${invoice.status === 'paid' ? 'bg-green-100 text-green-800' :
                 invoice.status === 'pending' ? 'bg-yellow-100 text-yellow-800' :
-                'bg-red-100 text-red-800'
-              }`}>
+                  'bg-red-100 text-red-800'
+                }`}>
                 {invoice.status?.toUpperCase()}
               </span>
             </div>
@@ -293,7 +465,7 @@ export default function PreviewInvoice({ invoiceId }: PreviewInvoiceProps) {
               <div className="col-span-2 text-center">Unit Price</div>
               <div className="col-span-2 text-right">Amount</div>
             </div>
-            
+
             {/* Table Body */}
             {invoice.invoiceItems.map((item, index) => (
               <div key={item.id || index} className="grid grid-cols-12 gap-4 p-4 border-t border-gray-200">

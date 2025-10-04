@@ -5,7 +5,7 @@ export function middleware(request: NextRequest) {
   const token = request.cookies.get("accessToken")?.value;
   const { pathname } = request.nextUrl;
 
-  const publicPaths = ["/signin", "/signup", "/reset-pwd"];
+  const publicPaths = ["/signin", "/signup", "/reset-pwd", "/admin-register"];
 
   // kalau belum login & bukan halaman publik → tendang ke signin
   if (!token && !publicPaths.includes(pathname)) {
@@ -21,5 +21,12 @@ export function middleware(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ["/", "/signin", "/signup", "/reset-pwd"],
+  // Protect most routes, allow public ones
+  matcher: [
+    "/",
+    "/((?!_next|api|favicon.ico|images|icons|public).*)",
+    "/signin",
+    "/signup",
+    "/reset-pwd",
+  ],
 };

@@ -89,6 +89,21 @@ export const invoiceService = {
     return response.json();
   },
 
+  // Fetch invoices by client ID
+  async getInvoicesByClientId(clientId: string): Promise<Invoice[]> {
+    const token = authService.getToken();
+    if (!token) throw new Error('No access token found');
+
+    const response = await fetch(`${API_BASE_URL}/invoices?clientId=${clientId}`, {
+      method: 'GET',
+      headers: {
+        'Authorization': `Bearer ${token}`,
+      },
+    });
+    if (!response.ok) throw new Error('Failed to fetch invoices for client');
+    return response.json();
+  },
+
   async createInvoice(payload: CreateInvoicePayload): Promise<Invoice> {
     const token = authService.getToken();
     if (!token) throw new Error('No access token found');
